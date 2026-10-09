@@ -447,97 +447,6 @@ if ($isAuth) {
                     </button>
                 </div>
 
-                <!-- Today's Workout Focus & Classes -->
-                <div class="glass-card rounded-3xl p-5 border border-zinc-800/80 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h4 class="font-heading text-lg font-bold uppercase text-white tracking-wide flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-day text-red-500"></i>
-                            <span>Today's Classes</span>
-                        </h4>
-                        <span class="text-[11px] text-zinc-400"><?= date('l') ?></span>
-                    </div>
-
-                    <div class="space-y-2.5">
-                        <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center text-xs font-bold">
-                                    HIIT
-                                </div>
-                                <div>
-                                    <h5 class="text-xs font-bold text-white">Combat Conditioning</h5>
-                                    <span class="text-[10px] text-zinc-400">06:00 PM • Coach Viktor</span>
-                                </div>
-                            </div>
-                            <button type="button" onclick="showAppToast('Reserved slot for 06:00 PM Combat Conditioning', 'success')" class="px-3 py-1.5 rounded-xl bg-zinc-800 text-[10px] font-bold uppercase text-zinc-300 hover:text-white hover:bg-zinc-700">
-                                Join
-                            </button>
-                        </div>
-
-                        <div class="p-3 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center text-xs font-bold">
-                                    PWR
-                                </div>
-                                <div>
-                                    <h5 class="text-xs font-bold text-white">Power Barbell Club</h5>
-                                    <span class="text-[10px] text-zinc-400">07:30 PM • Coach Marcus</span>
-                                </div>
-                            </div>
-                            <button type="button" onclick="showAppToast('Reserved slot for 07:30 PM Power Barbell', 'success')" class="px-3 py-1.5 rounded-xl bg-zinc-800 text-[10px] font-bold uppercase text-zinc-300 hover:text-white hover:bg-zinc-700">
-                                Join
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ==========================================
-                 TAB 2: WORKOUTS & CLASSES
-                 ========================================== -->
-            <div id="tab-workouts" class="tab-pane space-y-4">
-                <div class="glass-card rounded-3xl p-5 border border-zinc-800/80">
-                    <h3 class="font-heading text-2xl font-bold uppercase text-white">Weekly Schedule</h3>
-                    <p class="text-xs text-zinc-400 mt-0.5">Daily training sessions included in your membership</p>
-
-                    <div class="mt-4 space-y-3">
-                        <div class="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
-                            <div>
-                                <span class="text-[9px] uppercase font-bold text-red-400 block">Morning Session</span>
-                                <h4 class="text-xs font-bold text-white">Olympic Lifting & Core</h4>
-                                <span class="text-[10px] text-zinc-500">07:00 AM - 08:30 AM</span>
-                            </div>
-                            <button onclick="showAppToast('Reminder set for 07:00 AM session', 'info')" class="w-8 h-8 rounded-xl bg-zinc-800 text-zinc-300 flex items-center justify-center text-xs"><i class="fa-regular fa-bell"></i></button>
-                        </div>
-
-                        <div class="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
-                            <div>
-                                <span class="text-[9px] uppercase font-bold text-emerald-400 block">Evening Session</span>
-                                <h4 class="text-xs font-bold text-white">Metabolic Conditioning</h4>
-                                <span class="text-[10px] text-zinc-500">06:00 PM - 07:15 PM</span>
-                            </div>
-                            <button onclick="showAppToast('Reminder set for 06:00 PM session', 'info')" class="w-8 h-8 rounded-xl bg-zinc-800 text-zinc-300 flex items-center justify-center text-xs"><i class="fa-regular fa-bell"></i></button>
-                        </div>
-
-                        <div class="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
-                            <div>
-                                <span class="text-[9px] uppercase font-bold text-blue-400 block">Night Session</span>
-                                <h4 class="text-xs font-bold text-white">Hypertrophy Chest & Arms</h4>
-                                <span class="text-[10px] text-zinc-500">08:00 PM - 09:30 PM</span>
-                            </div>
-                            <button onclick="showAppToast('Reminder set for 08:00 PM session', 'info')" class="w-8 h-8 rounded-xl bg-zinc-800 text-zinc-300 flex items-center justify-center text-xs"><i class="fa-regular fa-bell"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card rounded-3xl p-5 border border-zinc-800/80 text-center">
-                    <i class="fa-solid fa-dumbbell text-3xl text-red-500 mb-2"></i>
-                    <h4 class="font-heading text-lg font-bold uppercase text-white">Custom Workout Log</h4>
-                    <p class="text-xs text-zinc-400 mt-1">Need a custom training split? Message our coaching team.</p>
-                    <button onclick="openCoachModal()" class="mt-3 px-5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 text-xs font-bold uppercase text-white">
-                        Consult Trainer
-                    </button>
-                </div>
             </div>
 
             <!-- ==========================================
@@ -706,15 +615,7 @@ if ($isAuth) {
                     <span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
                 </button>
 
-                <!-- Tab 2: Workouts -->
-                <button type="button" onclick="switchAppTab('workouts')" id="tab-btn-workouts" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1">
-                    <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-dumbbell text-sm"></i>
-                    </div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">Classes</span>
-                </button>
-
-                <!-- Tab 3: QR Entry Pass (Center Prominent) -->
+                <!-- Tab 2: QR Entry Pass (Center Prominent) -->
                 <button type="button" onclick="switchAppTab('qr')" id="tab-btn-qr" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1 -mt-5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 text-white flex items-center justify-center shadow-lg shadow-red-600/40 border border-red-500/50 active:scale-95 transition-all">
                         <i class="fa-solid fa-qrcode text-lg"></i>
@@ -722,7 +623,7 @@ if ($isAuth) {
                     <span class="text-[10px] font-bold uppercase tracking-wider text-red-400">QR Pass</span>
                 </button>
 
-                <!-- Tab 4: Membership -->
+                <!-- Tab 3: Membership -->
                 <button type="button" onclick="switchAppTab('membership')" id="tab-btn-membership" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1">
                     <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all">
                         <i class="fa-solid fa-id-card text-sm"></i>
@@ -730,7 +631,7 @@ if ($isAuth) {
                     <span class="text-[10px] font-bold uppercase tracking-wider">Pass</span>
                 </button>
 
-                <!-- Tab 5: Profile -->
+                <!-- Tab 4: Profile -->
                 <button type="button" onclick="switchAppTab('profile')" id="tab-btn-profile" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1">
                     <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all">
                         <i class="fa-solid fa-user-gear text-sm"></i>
