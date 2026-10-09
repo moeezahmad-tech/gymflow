@@ -10,7 +10,7 @@ $currentUser = getCurrentUser();
 $headerTitle = $adminHeaderTitle ?? 'Admin Console';
 $headerSubtitle = $adminHeaderSubtitle ?? ('Live Operational Control • ' . date('l, F j, Y'));
 ?>
-<header class="bg-black/85 backdrop-blur-xl border-b border-zinc-900 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-lg">
+<header class="bg-black/85 backdrop-blur-xl border-b border-zinc-900 px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3 sticky top-0 z-30 shadow-md">
     <!-- Left: Page Title, Mobile Toggle & Breadcrumbs -->
     <div class="flex items-center gap-3 min-w-0">
         <!-- Mobile Sidebar Toggle Button -->

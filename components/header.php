@@ -12,7 +12,7 @@ $currentUser = getCurrentUser();
 ?>
 <!-- Top Utility Bar -->
 <div class="hidden lg:block bg-[#050507] border-b border-zinc-900 text-xs py-2 px-4 text-zinc-400">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <div class="max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <div class="flex items-center space-x-6">
             <span class="flex items-center gap-2">
                 <i class="fa-solid fa-location-dot text-red-500"></i>
@@ -38,30 +38,32 @@ $currentUser = getCurrentUser();
 </div>
 
 <!-- Main Sticky Header -->
-<header id="mainHeader" class="sticky top-0 z-50 bg-[#070709] lg:bg-[#070709]/95 glass-nav border-b border-zinc-800 transition-all duration-300 py-3.5">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+<header id="mainHeader" class="sticky top-0 z-50 bg-[#070709] lg:bg-[#070709]/95 glass-nav border-b border-zinc-800 transition-all duration-300 h-16 sm:h-20 flex items-center justify-center">
+    <div class="w-full max-w-[1560px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         
-        <!-- Brand Logo (High Contrast White Logo for Dark Background) -->
-        <a href="<?= url('index.php') ?>" class="flex items-center gap-3.5 group focus:outline-none">
-            <div class="relative flex items-center">
-                <img src="<?= asset('images/logo.png') ?>" 
-                     alt="Gym Flow Logo" 
-                     class="h-11 w-auto max-w-[160px] object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-[0_2px_12px_rgba(255,255,255,0.2)]"
-                     onerror="this.style.display='none'; document.getElementById('brandLogoFallback').style.display='flex';" />
-                
-                <div id="brandLogoFallback" style="display:none;" class="items-center gap-2">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-red-600/30">
-                        <i class="fa-solid fa-dumbbell"></i>
+        <!-- Left: Brand Logo -->
+        <div class="flex items-center min-w-[220px] shrink-0 justify-start">
+            <a href="<?= url('index.php') ?>" class="flex items-center gap-3.5 group focus:outline-none">
+                <div class="relative flex items-center">
+                    <img src="<?= asset('images/logo.png') ?>" 
+                         alt="Gym Flow Logo" 
+                         class="h-8 sm:h-9 w-auto max-w-[150px] object-contain transition-transform duration-300 group-hover:scale-105 filter drop-shadow-[0_2px_12px_rgba(255,255,255,0.2)]"
+                         onerror="this.style.display='none'; document.getElementById('brandLogoFallback').style.display='flex';" />
+                    
+                    <div id="brandLogoFallback" style="display:none;" class="items-center gap-2">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-red-600/30">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
+                        <span class="font-heading text-3xl font-bold tracking-wider text-white leading-none group-hover:text-red-500 transition-colors">
+                            GYM<span class="text-red-500">FLOW</span>
+                        </span>
                     </div>
-                    <span class="font-heading text-3xl font-bold tracking-wider text-white leading-none group-hover:text-red-500 transition-colors">
-                        GYM<span class="text-red-500">FLOW</span>
-                    </span>
                 </div>
-            </div>
-        </a>
+            </a>
+        </div>
 
-        <!-- Desktop Navigation Links -->
-        <nav class="hidden lg:flex items-center space-x-1 xl:space-x-2">
+        <!-- Center: Desktop Navigation Links (Centrally Positioned) -->
+        <nav class="hidden lg:flex items-center justify-center space-x-1 xl:space-x-3 flex-1">
             <a href="<?= url('index.php') ?>" class="px-3 py-2 text-xs uppercase tracking-wider font-bold transition-colors <?= $currentPage === 'index' ? 'text-red-500' : 'text-zinc-300 hover:text-white' ?>">Home</a>
             <a href="<?= url('about.php') ?>" class="px-3 py-2 text-xs uppercase tracking-wider font-bold transition-colors <?= $currentPage === 'about' ? 'text-red-500' : 'text-zinc-300 hover:text-white' ?>">About Us</a>
             <a href="<?= url('programs.php') ?>" class="px-3 py-2 text-xs uppercase tracking-wider font-bold transition-colors <?= $currentPage === 'programs' ? 'text-red-500' : 'text-zinc-300 hover:text-white' ?>">Programs</a>
@@ -70,8 +72,8 @@ $currentUser = getCurrentUser();
             <a href="<?= url('contact.php') ?>" class="px-3 py-2 text-xs uppercase tracking-wider font-bold transition-colors <?= $currentPage === 'contact' ? 'text-red-500' : 'text-zinc-300 hover:text-white' ?>">Contact</a>
         </nav>
 
-        <!-- Right Action Buttons (Dynamic based on Logged-in State) -->
-        <div class="hidden md:flex items-center space-x-3.5">
+        <!-- Right: Action Buttons (Dynamic based on Logged-in State) -->
+        <div class="hidden md:flex items-center justify-end space-x-3.5 min-w-[220px] shrink-0">
             <?php if ($loggedIn): ?>
                 <!-- LOGGED IN STATE: User Profile Dropdown / Hub -->
                 <div class="flex items-center gap-3">

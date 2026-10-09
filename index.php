@@ -30,11 +30,6 @@ require_once __DIR__ . '/components/header.php';
 
         <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
             
-            <!-- Prominent White Logo Feature Badge -->
-            <div class="mb-4 inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-black/60 border border-zinc-800 backdrop-blur-md shadow-2xl">
-                <img src="<?= asset('images/logo.png') ?>" alt="Gym Flow" class="h-6 w-auto object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-                <span class="text-xs uppercase font-bold tracking-widest text-zinc-300">Welcome To The Next Level</span>
-            </div>
 
             <!-- Watermark Athletic Outline Text -->
             <div class="outline-text font-heading text-6xl sm:text-8xl md:text-9xl font-extrabold uppercase tracking-widest leading-none select-none -mb-8 sm:-mb-14 opacity-35">
