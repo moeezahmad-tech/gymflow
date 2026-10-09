@@ -29,11 +29,11 @@ function getCSRFToken(): string {
 /**
  * Verify CSRF Token
  */
-function verifyCSRFToken(?string $token): bool {
+function verifyCSRFToken($token = null): bool {
     if (empty($_SESSION['csrf_token']) || empty($token)) {
         return false;
     }
-    return hash_equals($_SESSION['csrf_token'], $token);
+    return hash_equals($_SESSION['csrf_token'], (string)$token);
 }
 
 /**
@@ -57,7 +57,7 @@ function sanitizeInput(string $data): string {
 /**
  * Authenticate User with Password Verification, Session Regeneration & Auto-Rehashing
  */
-function authenticateUser(string $email, string $password, ?string $roleFilter = null): array {
+function authenticateUser(string $email, string $password, $roleFilter = null): array {
     $email = trim($email);
 
     if (empty($email) || empty($password)) {
@@ -264,7 +264,7 @@ function registerMember(array $data): array {
 /**
  * Access Control Middleware: Require Login
  */
-function requireLogin(): void {
+function requireLogin() {
     if (!isLoggedIn()) {
         header('Location: ' . url('login.php?error=unauthorized'));
         exit;
@@ -274,7 +274,7 @@ function requireLogin(): void {
 /**
  * Access Control Middleware: Require Specific Role(s)
  */
-function requireRole($roles): void {
+function requireRole($roles) {
     requireLogin();
     
     $allowed = is_array($roles) ? $roles : [$roles];
@@ -332,6 +332,6 @@ function isMember(): bool {
 /**
  * Access Control Middleware: Require Admin
  */
-function requireAdmin(): void {
+function requireAdmin() {
     requireRole(['admin', 'staff']);
 }

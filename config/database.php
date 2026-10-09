@@ -44,12 +44,12 @@ function loadEnv($filePath = null) {
 loadEnv();
 
 class Database {
-    private static ?PDO $instance = null;
+    private static $instance = null;
 
     /**
      * Get Singleton PDO connection
      */
-    public static function getConnection(): PDO {
+    public static function getConnection() {
         if (self::$instance === null) {
             $isProductionHost = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'techkreative.com') !== false;
 
@@ -107,6 +107,6 @@ class Database {
 /**
  * Global helper function to access PDO instance
  */
-function getDB(): PDO {
+function getDB() {
     return Database::getConnection();
 }

@@ -124,7 +124,7 @@ function isActiveRoute($pageName): string {
 /**
  * Helper to redirect to a path
  */
-function redirect(string $path = ''): void {
+function redirect(string $path = '') {
     $target = url($path);
     header("Location: {$target}");
     exit;

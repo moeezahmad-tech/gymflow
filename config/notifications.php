@@ -55,7 +55,7 @@ class NotificationEngine {
     /**
      * Dispatch SMS Message (Simulated & Gateway Ready)
      */
-    public static function sendSMS(string $phone, string $message, ?int $userId = null, ?int $paymentId = null): array {
+    public static function sendSMS(string $phone, string $message, $userId = null, $paymentId = null): array {
         $phone = preg_replace('/[^0-9+]/', '', $phone);
         
         // Log to database
@@ -74,7 +74,7 @@ class NotificationEngine {
     /**
      * Dispatch WhatsApp Message (Simulated & Meta Cloud / Twilio API Ready)
      */
-    public static function sendWhatsApp(string $phone, string $message, ?int $userId = null, ?int $paymentId = null): array {
+    public static function sendWhatsApp(string $phone, string $message, $userId = null, $paymentId = null): array {
         $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
         
         // Log to database
@@ -160,7 +160,7 @@ class NotificationEngine {
     /**
      * Record dispatch entry in notifications_log
      */
-    private static function logNotification(?int $userId, ?int $paymentId, string $channel, string $recipient, string $message, string $status): void {
+    private static function logNotification($userId, $paymentId, string $channel, string $recipient, string $message, string $status) {
         try {
             $db = getDB();
             $stmt = $db->prepare("
