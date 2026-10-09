@@ -250,13 +250,6 @@ if ($isAuth) {
         .qr-pulse {
             box-shadow: 0 0 35px rgba(255, 42, 42, 0.35);
         }
-        @keyframes sheetSlideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .sheet-slide-up {
-            animation: sheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
     </style>
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col justify-between selection:bg-red-600 selection:text-white antialiased">
@@ -374,10 +367,10 @@ if ($isAuth) {
                 <button type="button" onclick="switchAppTab('notifications')" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Alerts & Notifications">
                     <i class="fa-regular fa-bell"></i>
                 </button>
-                <!-- Coach Support -->
-                <button type="button" onclick="openCoachModal()" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Ask Coach">
+                <!-- Coach Support (Dedicated Page) -->
+                <a href="coach.php" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm active:scale-95 transition-all" title="Ask Coach">
                     <i class="fa-regular fa-comment-dots"></i>
-                </button>
+                </a>
                 <!-- App Logout -->
                 <a href="logout.php" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-red-400 flex items-center justify-center text-xs shadow-sm" title="Sign Out">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -682,13 +675,13 @@ if ($isAuth) {
                 </div>
 
                 <div class="glass-card rounded-3xl p-4 border border-zinc-800/80 space-y-1 divide-y divide-zinc-800/60">
-                    <button type="button" onclick="openCoachModal()" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
+                    <a href="coach.php" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-headset text-red-500 text-sm"></i>
                             <span class="font-medium text-zinc-200">Contact Coach / Desk</span>
                         </span>
                         <i class="fa-solid fa-chevron-right text-[10px] text-zinc-600"></i>
-                    </button>
+                    </a>
 
                     <button type="button" onclick="showAppToast('GymFlow App is up to date (v1.1.0)', 'info')" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
                         <span class="flex items-center gap-3">
@@ -767,110 +760,6 @@ if ($isAuth) {
             </div>
         </nav>
 
-        <!-- ============================================================
-             COACH & DESK MESSAGING BOTTOM SHEET (Native Mobile Drawer)
-             ============================================================ -->
-        <div id="coachModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="handleBackdropClick(event)">
-            <div id="coachModalContent" class="glass-card sheet-slide-up rounded-t-[32px] sm:rounded-3xl p-6 max-w-md w-full border border-zinc-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto safe-bottom">
-                
-                <!-- Pull Indicator Bar for Mobile -->
-                <div class="w-12 h-1 bg-zinc-700/80 rounded-full mx-auto -mt-2 mb-1"></div>
-
-                <!-- Header with Coach Desk info & Status -->
-                <div class="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-                    <div class="flex items-center gap-3">
-                        <div class="relative">
-                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white text-base shadow-lg shadow-red-600/30 border border-red-500/40">
-                                <i class="fa-solid fa-headset"></i>
-                            </div>
-                            <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#070709] animate-pulse"></span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-heading text-xl font-bold uppercase text-white tracking-wide">Coach & Desk</h4>
-                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold">Online</span>
-                            </div>
-                            <p class="text-[11px] text-zinc-400">GymFlow Support • Avg reply &lt; 5m</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="closeCoachModal()" class="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
-                        <i class="fa-solid fa-xmark text-sm"></i>
-                    </button>
-                </div>
-
-                <!-- Direct Instant Channels (Call / WhatsApp) -->
-                <div class="grid grid-cols-2 gap-2.5">
-                    <a href="tel:+923001234567" class="p-2.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 flex items-center gap-2.5 text-xs text-zinc-300 transition-colors">
-                        <div class="w-7 h-7 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xs shrink-0">
-                            <i class="fa-solid fa-phone"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span class="block text-[9px] uppercase font-bold text-zinc-500">Instant</span>
-                            <span class="font-bold truncate text-white">Call Desk</span>
-                        </div>
-                    </a>
-                    <a href="https://wa.me/923001234567?text=Hi%20GymFlow%20Coach,%20I%20need%20assistance%20with%20my%20membership/workout." target="_blank" class="p-2.5 rounded-2xl bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 flex items-center gap-2.5 text-xs text-zinc-300 transition-colors">
-                        <div class="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs shrink-0">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span class="block text-[9px] uppercase font-bold text-zinc-500">Live Chat</span>
-                            <span class="font-bold truncate text-white">WhatsApp</span>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Quick Topic Suggestion Pills -->
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2">Select Quick Topic</label>
-                    <div class="flex flex-wrap gap-1.5" id="coachTopicPills">
-                        <button type="button" onclick="selectCoachTopic(this, 'Workout Routine & Form')" class="topic-pill px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-medium hover:border-red-500 transition-all flex items-center gap-1.5">
-                            <span>🏋️</span> Workout Form
-                        </button>
-                        <button type="button" onclick="selectCoachTopic(this, 'Nutrition & Diet Plan')" class="topic-pill px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-medium hover:border-red-500 transition-all flex items-center gap-1.5">
-                            <span>🥗</span> Diet Advice
-                        </button>
-                        <button type="button" onclick="selectCoachTopic(this, 'Turnstile & Locker Access')" class="topic-pill px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-medium hover:border-red-500 transition-all flex items-center gap-1.5">
-                            <span>🔑</span> Locker/Gate
-                        </button>
-                        <button type="button" onclick="selectCoachTopic(this, 'Membership & Renewal')" class="topic-pill px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] font-medium hover:border-red-500 transition-all flex items-center gap-1.5">
-                            <span>💳</span> Pass Renewal
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Form -->
-                <form id="coachMsgForm" onsubmit="submitCoachMessage(event)" class="space-y-3">
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Your Message</label>
-                            <span id="charCount" class="text-[10px] text-zinc-500">0/300</span>
-                        </div>
-                        <div class="relative">
-                            <textarea id="coachMsgInput" required rows="3" maxlength="300" oninput="updateCharCount(this)" placeholder="Type your question or request for the trainer team..." class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/40 transition-all resize-none"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Urgency Flag -->
-                    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 text-xs">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
-                            <span class="text-[11px] text-zinc-300 font-medium">Currently at gym floor?</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="urgentCheck" class="sr-only peer">
-                            <div class="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
-                        </label>
-                    </div>
-
-                    <button type="submit" id="coachSubmitBtn" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-red-600/30 active:scale-95 transition-all">
-                        <i class="fa-regular fa-paper-plane text-xs"></i>
-                        <span id="coachBtnText">Send to Coaching Team</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-
     </div>
 <?php endif; ?>
 
@@ -925,77 +814,6 @@ if ($isAuth) {
                 showAppToast('Turnstile gate responded. Check-in recorded!', 'success');
                 if (btnText) btnText.textContent = 'Gate Passed';
             });
-    }
-
-    // Coach Message Handlers
-    function openCoachModal() {
-        const modal = document.getElementById('coachModal');
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeCoachModal() {
-        const modal = document.getElementById('coachModal');
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-    }
-    function handleBackdropClick(e) {
-        if (e.target.id === 'coachModal') {
-            closeCoachModal();
-        }
-    }
-    function selectCoachTopic(btn, topic) {
-        document.querySelectorAll('.topic-pill').forEach(el => {
-            el.classList.remove('bg-red-600/20', 'border-red-500', 'text-red-400');
-            el.classList.add('bg-zinc-900', 'border-zinc-800', 'text-zinc-300');
-        });
-        btn.classList.remove('bg-zinc-900', 'border-zinc-800', 'text-zinc-300');
-        btn.classList.add('bg-red-600/20', 'border-red-500', 'text-red-400');
-
-        const input = document.getElementById('coachMsgInput');
-        input.value = `[${topic}] `;
-        input.focus();
-        updateCharCount(input);
-    }
-    function updateCharCount(textarea) {
-        const count = document.getElementById('charCount');
-        if (count) count.textContent = `${textarea.value.length}/300`;
-    }
-    function submitCoachMessage(e) {
-        e.preventDefault();
-        const text = document.getElementById('coachMsgInput').value.trim();
-        if (!text) return;
-
-        const isUrgent = document.getElementById('urgentCheck')?.checked;
-        const fullMessage = (isUrgent ? '⚡ [AT GYM NOW - URGENT] ' : '') + text;
-
-        const btn = document.getElementById('coachSubmitBtn');
-        const btnText = document.getElementById('coachBtnText');
-        if (btn) btn.disabled = true;
-        if (btnText) btnText.textContent = 'Sending Message...';
-
-        const formData = new FormData();
-        formData.append('message', fullMessage);
-
-        fetch('<?= url("app/api.php") ?>?action=send_coach_message', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            closeCoachModal();
-            document.getElementById('coachMsgInput').value = '';
-            updateCharCount({ value: '' });
-            showAppToast(data.message || 'Message sent to coach team!', data.success ? 'success' : 'error');
-        })
-        .catch(() => {
-            closeCoachModal();
-            document.getElementById('coachMsgInput').value = '';
-            showAppToast('Your message was delivered to the coaching staff.', 'success');
-        })
-        .finally(() => {
-            if (btn) btn.disabled = false;
-            if (btnText) btnText.textContent = 'Send to Coaching Team';
-        });
     }
 
     // App Toast Engine (Centered on Mobile)
