@@ -11,6 +11,15 @@ $db = Database::getConnection();
 $error = null;
 $success = null;
 
+// Handle Mobile App Logout directly
+if ((isset($_GET['action']) && $_GET['action'] === 'logout') || isset($_GET['logout'])) {
+    logoutUser();
+    $isAppSubdir = (strpos($_SERVER['REQUEST_URI'] ?? '', '/app') !== false);
+    $redirectUrl = $isAppSubdir ? url('app/index.php') : './index.php';
+    header('Location: ' . $redirectUrl);
+    exit;
+}
+
 // Handle Mobile App Login
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action']) && $_POST['app_action'] === 'login') {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
@@ -354,7 +363,7 @@ if ($isAuth) {
                     <i class="fa-regular fa-comment-dots"></i>
                 </button>
                 <!-- App Logout -->
-                <a href="<?= url('app/logout.php') ?>" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-red-400 flex items-center justify-center text-xs shadow-sm" title="Sign Out">
+                <a href="logout.php" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-red-400 flex items-center justify-center text-xs shadow-sm" title="Sign Out">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
             </div>
@@ -589,7 +598,7 @@ if ($isAuth) {
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-zinc-600"></i>
                     </a>
 
-                    <a href="<?= url('app/logout.php') ?>" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left text-red-400 hover:text-red-300 font-bold transition-colors">
+                    <a href="logout.php" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left text-red-400 hover:text-red-300 font-bold transition-colors">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-power-off text-red-500 text-sm"></i>
                             <span>Sign Out of App</span>
