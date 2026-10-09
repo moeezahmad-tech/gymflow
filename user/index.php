@@ -240,7 +240,7 @@ require_once __DIR__ . '/../components/header.php';
                             <?= htmlspecialchars($planName) ?>
                         </span>
                         <span class="px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-700 text-zinc-200 font-mono text-[11px] font-bold">
-                            Roll #: <?= htmlspecialchars($memberCode) ?>
+                            Pass ID: <?= htmlspecialchars($memberCode) ?>
                         </span>
                     </div>
                     <h1 class="font-heading text-3xl sm:text-4xl font-bold text-white uppercase mt-1 leading-tight">

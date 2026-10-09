@@ -353,7 +353,7 @@ if ($isAuth) {
                 <div>
                     <h2 class="text-xs font-bold text-white uppercase tracking-wider leading-tight flex items-center gap-1.5">
                         <span><?= htmlspecialchars(explode(' ', $currentUser['name'])[0] ?? 'Athlete') ?></span>
-                        <span class="px-1.5 py-0.5 rounded bg-zinc-800/90 border border-zinc-700 text-zinc-300 font-mono text-[9px] font-bold">Roll # <?= htmlspecialchars($memberCode) ?></span>
+                        <span class="px-1.5 py-0.5 rounded bg-zinc-800/90 border border-zinc-700 text-zinc-300 font-mono text-[9px] font-bold">PassID: <?= htmlspecialchars($memberCode) ?></span>
                         <?php if ($isAdmin): ?>
                             <span class="px-1.5 py-0.2 rounded bg-red-600/20 text-red-400 text-[9px] font-extrabold border border-red-500/30">ADMIN</span>
                         <?php endif; ?>
@@ -394,10 +394,7 @@ if ($isAuth) {
                     
                     <div class="flex items-start justify-between">
                         <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[10px] font-bold uppercase tracking-widest text-red-400">Entry Pass</span>
-                                <span class="px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-[9px] font-mono font-bold">Roll # <?= htmlspecialchars($memberCode) ?></span>
-                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-1">Entry Pass</span>
                             <h3 class="font-heading text-2xl font-bold uppercase text-white leading-none">Turnstile Access</h3>
                             <p class="text-xs text-zinc-400 mt-1">Tap below to scan at gym turnstile</p>
                         </div>
@@ -583,7 +580,7 @@ if ($isAuth) {
 
                     <div class="bg-zinc-900/90 rounded-2xl p-3 border border-zinc-800 max-w-xs mx-auto text-left flex items-center justify-between">
                         <div>
-                            <span class="text-[9px] uppercase font-bold text-zinc-500 block">Roll Number</span>
+                            <span class="text-[9px] uppercase font-bold text-zinc-500 block">Pass ID</span>
                             <span class="text-xs font-bold font-mono text-zinc-200"><?= htmlspecialchars($memberCode) ?></span>
                         </div>
                         <div>
@@ -638,7 +635,7 @@ if ($isAuth) {
                     </div>
 
                     <div class="mt-3 p-3 rounded-2xl bg-zinc-900 border border-zinc-800 flex justify-between items-center text-xs">
-                        <span class="text-zinc-400">Roll Number:</span>
+                        <span class="text-zinc-400">Pass ID:</span>
                         <span class="font-mono font-bold text-red-400"><?= htmlspecialchars($memberCode) ?></span>
                     </div>
 
@@ -683,7 +680,7 @@ if ($isAuth) {
                     <p class="text-xs text-zinc-400"><?= htmlspecialchars($currentUser['email'] ?? '') ?></p>
                     <p class="text-[11px] text-zinc-500 mt-0.5"><?= htmlspecialchars($currentUser['phone'] ?? '+92 300 1234567') ?></p>
                     <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs font-bold mt-2">
-                        <span class="text-zinc-500 text-[10px]">ROLL #:</span>
+                        <span class="text-zinc-500 text-[10px]">PASS ID:</span>
                         <span class="text-red-400"><?= htmlspecialchars($memberCode) ?></span>
                     </div>
                 </div>
