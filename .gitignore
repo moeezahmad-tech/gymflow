@@ -1,0 +1,60 @@
+# ============================================================
+# GymFlow - Production & Development Git Ignore Rules
+# ============================================================
+
+# Environment & Sensitive Credentials
+.env
+.env.*
+!.env.example
+.gitinfo
+
+# Composer / PHP Dependencies
+/vendor/
+composer.phar
+
+# Node / Frontend Build (if used)
+/node_modules/
+/npm-debug.log*
+/yarn-error.log*
+/pnpm-debug.log*
+
+# Server & Application Logs
+*.log
+error_log
+/logs/
+/tmp/
+/temp/
+/cache/
+
+# Operating System Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# IDE & Editor Directories
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Local Backups & Scratch Files
+*.bak
+*.backup
+*.tmp
+*.old
+/scratch/
+/brain/
+
+# Local database dumps (Preserve official schema.sql)
+*.sql.gz
+*.sql.bak
+dump.sql
+local_dump.sql

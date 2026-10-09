@@ -1,0 +1,137 @@
+/* ============================================================
+   GymFlow - Global Sleek Dark Design System
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Teko:wght@500;600;700&display=swap');
+
+:root {
+    --color-pure-black: #000000;
+    --color-dark-bg: #070708;
+    --color-dark-surface: #0f1013;
+    --color-dark-card: #15161b;
+    --color-brand-red: #ff2a2a;
+    --color-brand-red-hover: #e01f1f;
+    --color-brand-glow: rgba(255, 42, 42, 0.4);
+    --color-border: #22252c;
+    --font-heading: 'Teko', sans-serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Global Reset & Base */
+body {
+    background-color: var(--color-pure-black);
+    color: #f3f4f6;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    letter-spacing: -0.01em;
+}
+
+h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Custom Sleek Dark Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #090a0d;
+}
+::-webkit-scrollbar-thumb {
+    background: #272a33;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-brand-red);
+}
+
+/* Glassmorphism & Neon Glow Utilities */
+.glass-nav {
+    background-color: #070709;
+    background-color: rgba(7, 7, 9, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid #1f222a;
+}
+
+@media (max-width: 1024px) {
+    .glass-nav {
+        background-color: #070709 !important;
+        background: #070709 !important;
+        border-bottom: 1px solid #27272a !important;
+    }
+}
+
+.mobile-menu-drawer {
+    background-color: #070709 !important;
+    background: #070709 !important;
+}
+
+.glass-card {
+    background: linear-gradient(135deg, rgba(21, 22, 27, 0.7) 0%, rgba(12, 13, 16, 0.9) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--color-border);
+}
+
+.glass-card:hover {
+    border-color: rgba(255, 42, 42, 0.45);
+    box-shadow: 0 10px 30px -10px rgba(255, 42, 42, 0.25);
+}
+
+.glow-red {
+    box-shadow: 0 0 25px var(--color-brand-glow);
+}
+
+.text-glow {
+    text-shadow: 0 0 20px rgba(255, 42, 42, 0.6);
+}
+
+/* Athletic Grid Accents */
+.bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Button & Badge Hover Animations */
+.btn-primary {
+    background: var(--color-brand-red);
+    color: #ffffff;
+    font-weight: 700;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: var(--color-brand-red-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px rgba(255, 42, 42, 0.5);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transition: all 0.25s ease;
+}
+
+.btn-outline:hover {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Watermark Outline Text (like in Gymster banner) */
+.outline-text {
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.18);
+    color: transparent;
+    transition: -webkit-text-stroke 0.3s ease;
+}
+
+.outline-text:hover {
+    -webkit-text-stroke: 1.5px rgba(255, 42, 42, 0.8);
+}
