@@ -364,9 +364,8 @@ if ($isAuth) {
 
             <div class="flex items-center gap-2">
                 <!-- Notifications Trigger -->
-                <button type="button" onclick="switchAppTab('notifications')" class="relative w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Alerts & Notifications">
+                <button type="button" onclick="switchAppTab('notifications')" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Alerts & Notifications">
                     <i class="fa-regular fa-bell"></i>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#070709]"></span>
                 </button>
                 <!-- Coach Support -->
                 <button type="button" onclick="openCoachModal()" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Ask Coach">
@@ -727,10 +726,9 @@ if ($isAuth) {
                 </button>
 
                 <!-- Tab 2: Alerts (Notifications) -->
-                <button type="button" onclick="switchAppTab('notifications')" id="tab-btn-notifications" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1 relative">
-                    <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all relative">
+                <button type="button" onclick="switchAppTab('notifications')" id="tab-btn-notifications" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1">
+                    <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all">
                         <i class="fa-solid fa-bell text-sm"></i>
-                        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#070709]"></span>
                     </div>
                     <span class="text-[10px] font-bold uppercase tracking-wider">Alerts</span>
                 </button>
