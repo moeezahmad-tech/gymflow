@@ -10,14 +10,14 @@ const CACHE_NAME = `gymflow-mobile-v${APP_VERSION}`;
 const STATIC_ASSETS = [
     './index.php',
     './manifest.json',
+    './images/app_logo.png',
+    './images/logo.png',
+    './images/favicon.png',
+    './icons/icon-192x192.png',
+    './icons/icon-512x512.png',
+    './icons/maskable-icon-512x512.png',
     '../assets/css/style.css',
-    '../assets/js/main.js',
-    '../assets/images/app_logo.png',
-    '../assets/images/logo.png',
-    '../assets/images/favicon.png',
-    '../assets/images/icons/icon-192x192.png',
-    '../assets/images/icons/icon-512x512.png',
-    '../assets/images/icons/maskable-icon-512x512.png'
+    '../assets/js/main.js'
 ];
 
 // Install & Cache Shell

@@ -44,7 +44,26 @@ function hashPassword(string $password): string {
 }
 
 function verifyPassword(string $password, string $hash): bool {
-    return password_verify($password, $hash);
+    if (empty($hash)) {
+        return false;
+    }
+    // 1. Standard Bcrypt / Argon2 verification
+    if (password_verify($password, $hash) || password_verify(trim($password), $hash)) {
+        return true;
+    }
+    // 2. MD5 fallback (if legacy or imported hash)
+    if (md5($password) === $hash || md5(trim($password)) === $hash) {
+        return true;
+    }
+    // 3. SHA-256 fallback
+    if (hash('sha256', $password) === $hash || hash('sha256', trim($password)) === $hash) {
+        return true;
+    }
+    // 4. Plaintext fallback (if imported without hash)
+    if ($password === $hash || trim($password) === $hash) {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -58,10 +77,11 @@ function sanitizeInput(string $data): string {
  * Authenticate User with Password Verification, Session Regeneration & Auto-Rehashing
  */
 function authenticateUser(string $email, string $password, $roleFilter = null): array {
-    $email = trim($email);
+    $identifier = trim($email);
+    $password = trim($password);
 
-    if (empty($email) || empty($password)) {
-        return ['success' => false, 'message' => 'Please provide both email address and password.'];
+    if (empty($identifier) || empty($password)) {
+        return ['success' => false, 'message' => 'Please provide both email/member ID and password.'];
     }
 
     try {
@@ -73,19 +93,27 @@ function authenticateUser(string $email, string $password, $roleFilter = null): 
             FROM users u
             LEFT JOIN memberships m ON u.id = m.user_id AND m.status = 'active'
             LEFT JOIN membership_plans mp ON m.plan_id = mp.id
-            WHERE LOWER(u.email) = LOWER(:email)
+            WHERE LOWER(u.email) = LOWER(:ident1) 
+               OR u.member_code = :ident2 
+               OR u.phone = :ident3 
+               OR CAST(u.id AS CHAR) = :ident4
             LIMIT 1
         ");
-        $stmt->execute([':email' => $email]);
+        $stmt->execute([
+            ':ident1' => $identifier,
+            ':ident2' => $identifier,
+            ':ident3' => $identifier,
+            ':ident4' => $identifier
+        ]);
         $user = $stmt->fetch();
 
         if (!$user) {
-            return ['success' => false, 'message' => 'No account found with this email address.'];
+            return ['success' => false, 'message' => 'No account found with this email or Member ID.'];
         }
 
         // Verify Account Status
-        if ($user['status'] !== 'active') {
-            return ['success' => false, 'message' => 'Your account is currently ' . $user['status'] . '. Please contact support.'];
+        if (($user['status'] ?? 'active') !== 'active') {
+            return ['success' => false, 'message' => 'Your account is currently ' . htmlspecialchars($user['status']) . '. Please contact gym support.'];
         }
 
         // Verify Role if specified
@@ -93,20 +121,20 @@ function authenticateUser(string $email, string $password, $roleFilter = null): 
             return ['success' => false, 'message' => 'Access denied. You do not have administrator privileges.'];
         }
 
-        // Verify Password Hash
-        if (!verifyPassword($password, $user['password'])) {
+        // Verify Password Hash (supports Bcrypt, MD5, SHA256, plaintext)
+        if (!verifyPassword($password, $user['password'] ?? '')) {
             return ['success' => false, 'message' => 'Invalid email address or password combination.'];
         }
 
-        // Automatically upgrade/rehash password if algorithm or cost parameters changed
-        if (password_needs_rehash($user['password'], PASSWORD_BCRYPT, ['cost' => 10])) {
+        // Automatically upgrade/rehash password if algorithm or cost parameters changed (or if was plaintext/md5)
+        if (password_needs_rehash($user['password'], PASSWORD_BCRYPT, ['cost' => 10]) || !password_verify($password, $user['password'])) {
             $newHash = hashPassword($password);
             $rehashStmt = $db->prepare("UPDATE users SET password = :p WHERE id = :uid");
             $rehashStmt->execute([':p' => $newHash, ':uid' => (int)$user['id']]);
         }
 
         // Regenerate Session ID to mitigate Session Fixation attacks
-        if (!headers_sent()) {
+        if (!headers_sent() && session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
         }
 
@@ -123,6 +151,7 @@ function authenticateUser(string $email, string $password, $roleFilter = null): 
         return [
             'success' => true,
             'role'    => $user['role'],
+            'name'    => $user['full_name'],
             'user'    => $user
         ];
 

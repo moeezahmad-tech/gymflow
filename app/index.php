@@ -140,10 +140,10 @@ if ($isAuth) {
     <meta name="msapplication-TileColor" content="#070709">
 
     <!-- App Manifest & Icons -->
-    <link rel="manifest" href="<?= url('app/manifest.json') ?>">
-    <link rel="icon" type="image/png" sizes="192x192" href="<?= asset('images/icons/icon-192x192.png') ?>">
-    <link rel="apple-touch-icon" sizes="180x180" href="<?= asset('images/icons/apple-touch-icon.png') ?>">
-    <link rel="shortcut icon" href="<?= url('favicon.ico') ?>">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="favicon.ico">
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -246,7 +246,7 @@ if ($isAuth) {
         <div class="text-center pt-6">
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-zinc-950 border border-zinc-800 shadow-2xl mb-4 relative overflow-hidden group">
                 <div class="absolute inset-0 bg-red-600/10 blur-xl"></div>
-                <img src="<?= asset('images/app_logo.png') ?>" alt="GymFlow" class="w-16 h-16 object-contain relative z-10 filter drop-shadow">
+                <img src="images/app_logo.png" onerror="this.src='../assets/images/app_logo.png'" alt="GymFlow" class="w-16 h-16 object-contain relative z-10 filter drop-shadow">
             </div>
             <h1 class="font-heading text-4xl font-bold uppercase tracking-wider text-white">GYM<span class="text-red-500">FLOW</span></h1>
             <p class="text-xs text-zinc-400 font-medium mt-0.5">Mobile Member & Athlete Portal</p>
