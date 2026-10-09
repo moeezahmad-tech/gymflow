@@ -5,28 +5,35 @@
 
 // Simple robust .env parser
 function loadEnv($filePath = null) {
-    if (!$filePath) {
-        $filePath = dirname(__DIR__) . '/.env';
+    $possiblePaths = [];
+    if ($filePath) {
+        $possiblePaths[] = $filePath;
     }
+    // 1. Parent directory (e.g. ../.env when app is inside /gymflow folder)
+    $possiblePaths[] = dirname(__DIR__, 2) . '/.env';
+    // 2. Current project root
+    $possiblePaths[] = dirname(__DIR__) . '/.env';
     
-    if (file_exists($filePath)) {
-        $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        foreach ($lines as $line) {
-            $line = trim($line);
-            // Skip comments
-            if (empty($line) || strpos($line, '#') === 0) {
-                continue;
-            }
-            // Parse KEY=VALUE
-            if (strpos($line, '=') !== false) {
-                list($key, $value) = explode('=', $line, 2);
-                $key = trim($key);
-                $value = trim($value);
-                // Strip quotes if present
-                $value = trim($value, '"\'');
-                if (!array_key_exists($key, $_ENV)) {
-                    $_ENV[$key] = $value;
-                    putenv("$key=$value");
+    foreach ($possiblePaths as $path) {
+        if (file_exists($path) && is_readable($path)) {
+            $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                // Skip comments
+                if (empty($line) || strpos($line, '#') === 0) {
+                    continue;
+                }
+                // Parse KEY=VALUE
+                if (strpos($line, '=') !== false) {
+                    list($key, $value) = explode('=', $line, 2);
+                    $key = trim($key);
+                    $value = trim($value);
+                    // Strip quotes if present
+                    $value = trim($value, '"\'');
+                    if (!array_key_exists($key, $_ENV)) {
+                        $_ENV[$key] = $value;
+                        putenv("$key=$value");
+                    }
                 }
             }
         }
@@ -44,11 +51,11 @@ class Database {
      */
     public static function getConnection(): PDO {
         if (self::$instance === null) {
-            // Read env variables with fallback defaults
-            $rawHost = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? '127.0.0.1');
-            $dbName  = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'gym_flow');
-            $dbUser  = getenv('DB_USERNAME') ?: ($_ENV['DB_USERNAME'] ?? 'root');
-            $dbPass  = getenv('DB_PASSWORD') ?: ($_ENV['DB_PASSWORD'] ?? '');
+            // Read env variables with GYMFLOW_ prefix support & fallback defaults
+            $rawHost = getenv('GYMFLOW_DB_HOST') ?: ($_ENV['GYMFLOW_DB_HOST'] ?? (getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? '127.0.0.1')));
+            $dbName  = getenv('GYMFLOW_DB_NAME') ?: ($_ENV['GYMFLOW_DB_NAME'] ?? (getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'gym_flow')));
+            $dbUser  = getenv('GYMFLOW_DB_USERNAME') ?: ($_ENV['GYMFLOW_DB_USERNAME'] ?? (getenv('DB_USERNAME') ?: ($_ENV['DB_USERNAME'] ?? 'root')));
+            $dbPass  = getenv('GYMFLOW_DB_PASSWORD') ?: ($_ENV['GYMFLOW_DB_PASSWORD'] ?? (getenv('DB_PASSWORD') ?: ($_ENV['DB_PASSWORD'] ?? '')));
             
             // Clean host in case protocol or port is passed (e.g., http://localhost:3306 or localhost:3306)
             $host = preg_replace('/^https?:\/\//i', '', $rawHost);
@@ -77,7 +84,7 @@ class Database {
                 die(json_encode([
                     'status' => 'error',
                     'message' => 'Database connection failed: ' . $e->getMessage(),
-                    'hint' => 'Please verify your database name, credentials, and MySQL server in .env'
+                    'hint' => 'Please verify your GYMFLOW_DB_NAME, credentials, and MySQL server in .env (stored in root or parent directory)'
                 ]));
             }
         }
