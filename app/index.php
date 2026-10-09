@@ -131,6 +131,15 @@ if ($isAuth) {
     $payStmt->execute([':uid' => $userId]);
     $paymentHistory = $payStmt->fetchAll();
     $latestPayment = $paymentHistory[0] ?? [];
+
+    // 5. Fetch Recent Announcements / Broadcasts
+    $broadcasts = [];
+    try {
+        $campStmt = $db->query("SELECT * FROM email_campaigns ORDER BY id DESC LIMIT 5");
+        $broadcasts = $campStmt ? $campStmt->fetchAll(PDO::FETCH_ASSOC) : [];
+    } catch (Exception $e) {
+        $broadcasts = [];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -354,9 +363,10 @@ if ($isAuth) {
             </div>
 
             <div class="flex items-center gap-2">
-                <!-- 1-Tap Quick QR Trigger -->
-                <button type="button" onclick="switchAppTab('qr')" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Turnstile QR Pass">
-                    <i class="fa-solid fa-qrcode"></i>
+                <!-- Notifications Trigger -->
+                <button type="button" onclick="switchAppTab('notifications')" class="relative w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Alerts & Notifications">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#070709]"></span>
                 </button>
                 <!-- Coach Support -->
                 <button type="button" onclick="openCoachModal()" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Ask Coach">
@@ -456,6 +466,98 @@ if ($isAuth) {
                     </button>
                 </div>
 
+            </div>
+
+            <!-- ==========================================
+                 TAB 2: NOTIFICATIONS & INBOX
+                 ========================================== -->
+            <div id="tab-notifications" class="tab-pane space-y-4">
+                <div class="glass-card rounded-3xl p-5 border border-zinc-800/80">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-1">Inbox & Updates</span>
+                            <h3 class="font-heading text-2xl font-bold uppercase text-white leading-none">Notifications</h3>
+                        </div>
+                        <button type="button" onclick="showAppToast('All notifications marked as read', 'success')" class="text-[11px] font-bold text-red-400 hover:text-red-300">
+                            Mark Read
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Notification Items List -->
+                <div class="space-y-3">
+                    
+                    <!-- 1. Turnstile / Check-in Alert -->
+                    <div class="glass-card rounded-2xl p-4 border border-zinc-800/80 flex items-start gap-3.5">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                            <i class="fa-solid fa-door-open"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-xs font-bold text-white">Turnstile Gate Access</h4>
+                                <span class="text-[10px] text-zinc-500">Today</span>
+                            </div>
+                            <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
+                                <?= $todayCheckedIn ? 'Checked in today at ' . $todayCheckInTime . '. Your daily workout streak is active!' : 'Your digital gate pass is ready. Hold your QR code to the scanner for entry.' ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Streak Alert -->
+                    <?php if ($currentStreak > 0): ?>
+                        <div class="glass-card rounded-2xl p-4 border border-zinc-800/80 flex items-start gap-3.5">
+                            <div class="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                                <i class="fa-solid fa-fire animate-pulse"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-xs font-bold text-white">Consistency Streak Milestone</h4>
+                                    <span class="text-[10px] text-zinc-500"><?= $currentStreak ?> Days</span>
+                                </div>
+                                <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
+                                    You have checked in for <strong class="text-white"><?= $currentStreak ?> consecutive workout days</strong>! Keep your momentum strong.
+                                </p>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- 3. Active Membership Reminder -->
+                    <div class="glass-card rounded-2xl p-4 border border-zinc-800/80 flex items-start gap-3.5">
+                        <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-xs font-bold text-white">Membership Status</h4>
+                                <span class="text-[10px] text-zinc-500"><?= max(0, (int)($memberData['days_left'] ?? 30)) ?>d Left</span>
+                            </div>
+                            <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
+                                Your <strong class="text-white"><?= htmlspecialchars($memberData['plan_name'] ?? 'Standard Athletic Pass') ?></strong> membership is active with full access to gym facilities.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 4. Broadcast Campaigns from Admin -->
+                    <?php if (!empty($broadcasts)): ?>
+                        <?php foreach ($broadcasts as $bc): ?>
+                            <div class="glass-card rounded-2xl p-4 border border-zinc-800/80 flex items-start gap-3.5">
+                                <div class="w-9 h-9 rounded-xl bg-red-600/10 border border-red-500/20 text-red-400 flex items-center justify-center text-sm shrink-0 mt-0.5">
+                                    <i class="fa-solid fa-bullhorn"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold text-white truncate max-w-[200px]"><?= htmlspecialchars($bc['subject']) ?></h4>
+                                        <span class="text-[10px] text-zinc-500"><?= date('M j', strtotime($bc['sent_at'] ?? 'now')) ?></span>
+                                    </div>
+                                    <p class="text-xs text-zinc-400 mt-1 leading-relaxed line-clamp-2">
+                                        <?= strip_tags($bc['message']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+
+                </div>
             </div>
 
             <!-- ==========================================
@@ -611,7 +713,7 @@ if ($isAuth) {
         </main>
 
         <!-- ============================================================
-             FIXED NATIVE BOTTOM TAB BAR (App Navigation Bar)
+             FIXED NATIVE BOTTOM TAB BAR (App Navigation Bar - 5 Tabs Balanced)
              ============================================================ -->
         <nav class="fixed bottom-0 inset-x-0 z-50 bg-[#070709]/95 backdrop-blur-2xl border-t border-zinc-800/80 px-2 py-2 safe-bottom">
             <div class="max-w-md mx-auto flex items-center justify-around">
@@ -624,7 +726,16 @@ if ($isAuth) {
                     <span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
                 </button>
 
-                <!-- Tab 2: QR Entry Pass (Center Prominent) -->
+                <!-- Tab 2: Alerts (Notifications) -->
+                <button type="button" onclick="switchAppTab('notifications')" id="tab-btn-notifications" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1 relative">
+                    <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all relative">
+                        <i class="fa-solid fa-bell text-sm"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#070709]"></span>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider">Alerts</span>
+                </button>
+
+                <!-- Tab 3: QR Entry Pass (Center Prominent) -->
                 <button type="button" onclick="switchAppTab('qr')" id="tab-btn-qr" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1 -mt-5">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 text-white flex items-center justify-center shadow-lg shadow-red-600/40 border border-red-500/50 active:scale-95 transition-all">
                         <i class="fa-solid fa-qrcode text-lg"></i>
@@ -632,7 +743,7 @@ if ($isAuth) {
                     <span class="text-[10px] font-bold uppercase tracking-wider text-red-400">QR Pass</span>
                 </button>
 
-                <!-- Tab 3: Membership -->
+                <!-- Tab 4: Membership -->
                 <button type="button" onclick="switchAppTab('membership')" id="tab-btn-membership" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1">
                     <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all">
                         <i class="fa-solid fa-id-card text-sm"></i>
@@ -640,7 +751,7 @@ if ($isAuth) {
                     <span class="text-[10px] font-bold uppercase tracking-wider">Pass</span>
                 </button>
 
-                <!-- Tab 4: Profile -->
+                <!-- Tab 5: Profile -->
                 <button type="button" onclick="switchAppTab('profile')" id="tab-btn-profile" class="tab-btn flex-1 flex flex-col items-center gap-1 text-zinc-400 transition-all py-1">
                     <div class="tab-icon-wrap w-8 h-8 rounded-xl border border-transparent flex items-center justify-center transition-all">
                         <i class="fa-solid fa-user-gear text-sm"></i>
