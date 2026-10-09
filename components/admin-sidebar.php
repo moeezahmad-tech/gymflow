@@ -17,9 +17,12 @@ try {
     $unreadMsgCount = 0;
 }
 ?>
-<aside id="adminSidebar" class="w-full md:w-64 bg-black border-r border-zinc-900 flex flex-col justify-between shrink-0 p-5 min-h-screen z-40">
+<!-- Mobile Backdrop Overlay -->
+<div id="adminSidebarBackdrop" onclick="toggleMobileSidebar(false)" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden transition-opacity"></div>
+
+<aside id="adminSidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-black border-r border-zinc-900 flex flex-col justify-between shrink-0 p-5 min-h-screen -translate-x-full md:translate-x-0 md:static md:w-64 transition-transform duration-300 ease-in-out overflow-y-auto">
     <div class="space-y-6">
-        <!-- Brand Logo & Quick Status -->
+        <!-- Brand Logo & Quick Status & Mobile Close -->
         <div class="flex items-center justify-between pb-5 border-b border-zinc-900">
             <a href="<?= url('admin/index.php') ?>" class="flex items-center gap-3">
                 <img src="<?= asset('images/logo.png') ?>" alt="Gym Flow" class="h-9 w-auto object-contain">
@@ -31,10 +34,16 @@ try {
                 </div>
             </a>
             
-            <span class="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400 font-bold">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Live
-            </span>
+            <div class="flex items-center gap-2">
+                <span class="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400 font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Live
+                </span>
+                <!-- Mobile Close Button -->
+                <button type="button" onclick="toggleMobileSidebar(false)" class="md:hidden p-2 rounded-xl bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 focus:outline-none" title="Close Menu">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Navigation Menu -->
@@ -104,10 +113,22 @@ try {
                         <span>Fee & Dues Ledger</span>
                     </div>
                 </a>
+            </div>
 
-            <!-- SECTION 4: INQUIRIES & COMMUNICATIONS -->
+            <!-- SECTION 4: MARKETING & COMMUNICATIONS -->
             <div class="space-y-1.5">
-                <span class="text-[10px] uppercase font-bold tracking-widest text-zinc-500 px-3 block">Inquiries & Support</span>
+                <span class="text-[10px] uppercase font-bold tracking-widest text-zinc-500 px-3 block">Outreach & Inquiries</span>
+
+                <!-- Newsletter & Promotional Broadcasts -->
+                <a href="<?= url('admin/newsletter.php') ?>" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all <?= $activeTab === 'newsletter' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'text-zinc-400 hover:text-white hover:bg-zinc-900' ?>">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-bullhorn text-sm w-4 text-center"></i>
+                        <span>Email Broadcasts</span>
+                    </div>
+                    <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-red-500/20 text-red-400 border border-red-500/30">
+                        Promo
+                    </span>
+                </a>
 
                 <!-- Contact Inquiries -->
                 <a href="<?= url('admin/messages.php') ?>" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all <?= $activeTab === 'messages' ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'text-zinc-400 hover:text-white hover:bg-zinc-900' ?>">
@@ -150,3 +171,63 @@ try {
         </a>
     </div>
 </aside>
+
+<!-- ============================================================
+     MOBILE APP BOTTOM NAVIGATION BAR
+     Main buttons on bottom, Complete Menu opener on the far right
+     ============================================================ -->
+<nav id="adminMobileBottomNav" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-black/95 backdrop-blur-2xl border-t border-zinc-800/80 px-2 py-1.5 flex items-center justify-around shadow-[0_-8px_30px_rgba(0,0,0,0.85)]">
+    
+    <!-- 1. Dashboard -->
+    <a href="<?= url('admin/index.php') ?>" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all <?= $activeTab === 'dashboard' ? 'text-red-500 font-bold' : 'text-zinc-400 hover:text-zinc-200' ?>">
+        <div class="relative">
+            <i class="fa-solid fa-gauge-high text-base sm:text-lg"></i>
+            <?php if ($activeTab === 'dashboard'): ?>
+                <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+            <?php endif; ?>
+        </div>
+        <span class="text-[10px] mt-1 font-medium tracking-tight">Overview</span>
+    </a>
+
+    <!-- 2. Members Directory -->
+    <a href="<?= url('admin/members.php') ?>" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all <?= in_array($activeTab, ['members', 'members-add', 'members-edit']) ? 'text-red-500 font-bold' : 'text-zinc-400 hover:text-zinc-200' ?>">
+        <div class="relative">
+            <i class="fa-solid fa-users text-base sm:text-lg"></i>
+            <?php if (in_array($activeTab, ['members', 'members-add', 'members-edit'])): ?>
+                <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+            <?php endif; ?>
+        </div>
+        <span class="text-[10px] mt-1 font-medium tracking-tight">Members</span>
+    </a>
+
+    <!-- 3. Financial Dues & Ledger -->
+    <a href="<?= url('admin/payments.php') ?>" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all <?= $activeTab === 'payments' ? 'text-red-500 font-bold' : 'text-zinc-400 hover:text-zinc-200' ?>">
+        <div class="relative">
+            <i class="fa-solid fa-credit-card text-base sm:text-lg"></i>
+            <?php if ($activeTab === 'payments'): ?>
+                <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+            <?php endif; ?>
+        </div>
+        <span class="text-[10px] mt-1 font-medium tracking-tight">Billing</span>
+    </a>
+
+    <!-- 4. Promotional Broadcasts & Newsletter -->
+    <a href="<?= url('admin/newsletter.php') ?>" class="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all <?= $activeTab === 'newsletter' ? 'text-red-500 font-bold' : 'text-zinc-400 hover:text-zinc-200' ?>">
+        <div class="relative">
+            <i class="fa-solid fa-bullhorn text-base sm:text-lg"></i>
+            <?php if ($activeTab === 'newsletter'): ?>
+                <span class="absolute -top-1 -right-1 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+            <?php endif; ?>
+        </div>
+        <span class="text-[10px] mt-1 font-medium tracking-tight">Broadcast</span>
+    </a>
+
+    <!-- 5. Complete Menu Opener (Most Right) -->
+    <button type="button" onclick="toggleMobileSidebar(true)" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-zinc-400 hover:text-white transition-all cursor-pointer group focus:outline-none" title="Open Complete Menu">
+        <div class="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-red-500/50 group-hover:bg-red-500/10 transition-colors">
+            <i class="fa-solid fa-bars-staggered text-xs text-zinc-300 group-hover:text-red-400"></i>
+        </div>
+        <span class="text-[10px] mt-0.5 font-bold tracking-tight text-zinc-300 group-hover:text-white">Menu</span>
+    </button>
+
+</nav>

@@ -309,7 +309,7 @@ try {
         ?>
 
         <!-- Main Content Area -->
-        <main class="p-6 space-y-8 flex-grow w-full">
+        <main class="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 flex-grow w-full min-w-0">
             
             <!-- Alert Messages -->
             <?php if ($message): ?>
@@ -335,7 +335,7 @@ try {
             <!-- ============================================================
                  2. CATEGORY TABS & DATE RANGE FILTER BAR
                  ============================================================ -->
-            <div class="glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl space-y-6">
+            <div class="glass-card rounded-3xl p-4 sm:p-6 border border-zinc-800 shadow-2xl space-y-6">
                 
                 <!-- Top Status Categorization Tabs -->
                 <div class="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-5">

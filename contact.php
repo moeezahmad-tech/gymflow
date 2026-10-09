@@ -128,6 +128,7 @@ require_once __DIR__ . '/components/header.php';
                                 </div>
                                 <div>
                                     <?php $selectedProg = $_POST['program'] ?? $_GET['program'] ?? ''; ?>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">Interested Program</label>
                                     <select name="program" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors">
                                         <option value="General Membership Inquiry" <?= ($selectedProg === 'General Membership Inquiry') ? 'selected' : '' ?>>General Membership Inquiry</option>
                                         <option value="1-on-1 Personal Training" <?= ($selectedProg === '1-on-1 Personal Training') ? 'selected' : '' ?>>1-on-1 Personal Training</option>

@@ -246,13 +246,13 @@ try {
         ?>
 
         <!-- Main Body Container -->
-        <main class="p-6 space-y-8 flex-grow">
+        <main class="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 flex-grow min-w-0">
             
             <!-- Alert Notifications -->
             <?php if ($actionMessage): ?>
                 <div class="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs sm:text-sm flex items-center justify-between shadow-xl">
                     <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-lg shrink-0"></i>
                         <span><?= htmlspecialchars($actionMessage) ?></span>
                     </div>
                     <button onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-white px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
@@ -262,7 +262,7 @@ try {
             <?php if ($actionError): ?>
                 <div class="p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs sm:text-sm flex items-center justify-between shadow-xl">
                     <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg"></i>
+                        <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg shrink-0"></i>
                         <span><?= htmlspecialchars($actionError) ?></span>
                     </div>
                     <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-white px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
@@ -272,59 +272,59 @@ try {
             <!-- ============================================================
                  3. 3 KEY METRICS CARDS (Active Members, Pending Dues, Active Subscriptions)
                  ============================================================ -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 
                 <!-- Metric 1: Total Active Members -->
-                <div class="glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl relative overflow-hidden group">
+                <div class="glass-card rounded-3xl p-5 sm:p-6 border border-zinc-800 shadow-2xl relative overflow-hidden group">
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Total Active Members</span>
-                            <h3 class="font-heading text-4xl sm:text-5xl font-bold text-white mt-1 leading-none"><?= number_format($totalActiveMembers) ?></h3>
+                            <span class="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Total Active Members</span>
+                            <h3 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 leading-none"><?= number_format($totalActiveMembers) ?></h3>
                         </div>
-                        <div class="w-14 h-14 rounded-2xl bg-red-600/10 border border-red-500/30 flex items-center justify-center text-red-500 text-2xl group-hover:scale-110 transition-transform">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-red-600/10 border border-red-500/30 flex items-center justify-center text-red-500 text-xl sm:text-2xl group-hover:scale-110 transition-transform shrink-0">
                             <i class="fa-solid fa-users"></i>
                         </div>
                     </div>
-                    <div class="mt-4 flex items-center text-xs text-emerald-400 gap-1.5 font-semibold">
+                    <div class="mt-4 flex items-center text-[11px] sm:text-xs text-emerald-400 gap-1.5 font-semibold flex-wrap">
                         <i class="fa-solid fa-arrow-trend-up"></i>
                         <span>+12% vs last month</span>
-                        <span class="text-zinc-500 ml-auto font-normal text-[11px]">94% Active</span>
+                        <span class="text-zinc-500 ml-auto font-normal text-[10px] sm:text-[11px]">94% Active</span>
                     </div>
                 </div>
 
                 <!-- Metric 2: Pending Dues Count -->
-                <div class="glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl relative overflow-hidden group">
+                <div class="glass-card rounded-3xl p-5 sm:p-6 border border-zinc-800 shadow-2xl relative overflow-hidden group">
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Pending Dues Count</span>
-                            <h3 class="font-heading text-4xl sm:text-5xl font-bold text-white mt-1 leading-none"><?= number_format($pendingDuesCount) ?></h3>
+                            <span class="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Pending Dues Count</span>
+                            <h3 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 leading-none"><?= number_format($pendingDuesCount) ?></h3>
                         </div>
-                        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition-transform">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl sm:text-2xl group-hover:scale-110 transition-transform shrink-0">
                             <i class="fa-solid fa-clock-rotate-left"></i>
                         </div>
                     </div>
-                    <div class="mt-4 flex items-center text-xs text-amber-400 gap-1.5 font-semibold">
+                    <div class="mt-4 flex items-center text-[11px] sm:text-xs text-amber-400 gap-1.5 font-semibold flex-wrap">
                         <i class="fa-solid fa-circle-exclamation"></i>
-                        <span>PKR <?= number_format($pendingDuesAmount) ?> uncollected</span>
-                        <span class="text-zinc-500 ml-auto font-normal text-[11px]">Action needed</span>
+                        <span>Awaiting Collection</span>
+                        <span class="text-zinc-500 ml-auto font-normal text-[10px] sm:text-[11px]">Action needed</span>
                     </div>
                 </div>
 
                 <!-- Metric 3: Active Subscriptions -->
-                <div class="glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl relative overflow-hidden group">
+                <div class="glass-card rounded-3xl p-5 sm:p-6 border border-zinc-800 shadow-2xl relative overflow-hidden group sm:col-span-2 lg:col-span-1">
                     <div class="flex items-center justify-between">
                         <div>
-                            <span class="text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Active Subscriptions</span>
-                            <h3 class="font-heading text-4xl sm:text-5xl font-bold text-white mt-1 leading-none"><?= number_format((float)($activeSubscriptions ?? 0)) ?></h3>
+                            <span class="text-[10px] sm:text-[11px] uppercase tracking-wider text-zinc-400 font-bold block">Active Subscriptions</span>
+                            <h3 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold text-white mt-1 leading-none"><?= number_format((float)($activeSubscriptions ?? 0)) ?></h3>
                         </div>
-                        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl group-hover:scale-110 transition-transform">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl sm:text-2xl group-hover:scale-110 transition-transform shrink-0">
                             <i class="fa-solid fa-id-card"></i>
                         </div>
                     </div>
-                    <div class="mt-4 flex items-center text-xs text-emerald-400 gap-1.5 font-semibold">
+                    <div class="mt-4 flex items-center text-[11px] sm:text-xs text-emerald-400 gap-1.5 font-semibold flex-wrap">
                         <i class="fa-solid fa-check-double"></i>
                         <span>Enrolled in tiers</span>
-                        <span class="text-zinc-500 ml-auto font-normal text-[11px]">Active Plans</span>
+                        <span class="text-zinc-500 ml-auto font-normal text-[10px] sm:text-[11px]">Active Plans</span>
                     </div>
                 </div>
 
@@ -333,14 +333,14 @@ try {
             <!-- ============================================================
                  5. TWO-COLUMN SPLIT: RECENT PAYMENTS & LIVE ATTENDANCE
                  ============================================================ -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
                 
                 <!-- Left 6 Cols: Recent Payments Log -->
-                <div id="payments" class="lg:col-span-6 glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl space-y-4">
+                <div id="payments" class="lg:col-span-6 glass-card rounded-3xl p-5 sm:p-6 border border-zinc-800 shadow-2xl space-y-4 min-w-0">
                     <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
                         <div>
-                            <span class="text-emerald-400 text-xs font-bold uppercase tracking-widest">Financial Ledger</span>
-                            <h3 class="font-heading text-2xl font-bold text-white uppercase mt-0.5">RECENT PAYMENTS</h3>
+                            <span class="text-emerald-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Financial Ledger</span>
+                            <h3 class="font-heading text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">RECENT PAYMENTS</h3>
                         </div>
                         <button onclick="toggleModal('modalRecordPayment', true)" class="text-xs uppercase font-bold text-emerald-400 hover:text-emerald-300">
                             + New Entry
@@ -350,32 +350,32 @@ try {
                     <div class="space-y-3 font-mono text-xs">
                         <?php if (!empty($recentPayments)): ?>
                             <?php foreach ($recentPayments as $p): ?>
-                                <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-[11px]">
+                                <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-[11px] shrink-0">
                                             Rs
                                         </div>
-                                        <div>
-                                            <span class="font-sans font-bold text-white block text-sm"><?= htmlspecialchars($p['full_name']) ?></span>
-                                            <span class="text-zinc-500 text-[11px]"><?= htmlspecialchars($p['transaction_id'] ?? 'TXN-98234') ?> • <?= htmlspecialchars($p['payment_method']) ?></span>
+                                        <div class="min-w-0">
+                                            <span class="font-sans font-bold text-white block text-sm truncate"><?= htmlspecialchars($p['full_name']) ?></span>
+                                            <span class="text-zinc-500 text-[11px] truncate block"><?= htmlspecialchars($p['transaction_id'] ?? 'TXN-98234') ?> • <?= htmlspecialchars($p['payment_method']) ?></span>
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-800/50">
                                         <span class="font-bold text-white text-sm block">PKR <?= number_format((float)$p['amount']) ?></span>
                                         <span class="text-[10px] text-emerald-400 uppercase font-sans font-bold"><?= htmlspecialchars($p['status']) ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-[11px]">Rs</div>
-                                    <div>
-                                        <span class="font-sans font-bold text-white block text-sm">Alex Johnson</span>
-                                        <span class="text-zinc-500 text-[11px]">TXN-98234-A101 • JazzCash / Card</span>
+                            <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-[11px] shrink-0">Rs</div>
+                                    <div class="min-w-0">
+                                        <span class="font-sans font-bold text-white block text-sm truncate">Alex Johnson</span>
+                                        <span class="text-zinc-500 text-[11px] truncate block">TXN-98234-A101 • JazzCash / Card</span>
                                     </div>
                                 </div>
-                                <div class="text-right">
+                                <div class="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-800/50">
                                     <span class="font-bold text-white text-sm block">PKR 8,000</span>
                                     <span class="text-[10px] text-emerald-400 uppercase font-sans font-bold">Paid</span>
                                 </div>
@@ -385,11 +385,11 @@ try {
                 </div>
 
                 <!-- Right 6 Cols: Membership Plans & Quick Tiers Overview -->
-                <div class="lg:col-span-6 glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl space-y-4">
+                <div class="lg:col-span-6 glass-card rounded-3xl p-5 sm:p-6 border border-zinc-800 shadow-2xl space-y-4 min-w-0">
                     <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
                         <div>
-                            <span class="text-red-500 text-xs font-bold uppercase tracking-widest">Subscription Tiers</span>
-                            <h3 class="font-heading text-2xl font-bold text-white uppercase mt-0.5">MEMBERSHIP TIERS OVERVIEW</h3>
+                            <span class="text-red-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest">Subscription Tiers</span>
+                            <h3 class="font-heading text-xl sm:text-2xl font-bold text-white uppercase mt-0.5">MEMBERSHIP TIERS OVERVIEW</h3>
                         </div>
                         <a href="<?= url('pricing.php') ?>" target="_blank" class="text-xs uppercase font-bold text-red-400 hover:text-red-300">
                             View Plans
@@ -397,63 +397,55 @@ try {
                     </div>
 
                     <div class="space-y-3 font-sans text-xs">
-                        <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-zinc-800 text-white flex items-center justify-center font-bold text-sm">
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-zinc-800 text-white flex items-center justify-center font-bold text-sm shrink-0">
                                     <i class="fa-solid fa-dumbbell"></i>
                                 </div>
-                                <div>
-                                    <span class="font-bold text-white block text-sm">1 Month Package</span>
-                                    <span class="text-zinc-500 text-[11px]">Floor access (5AM - 11PM) • Locker Room • 30 Days</span>
+                                <div class="min-w-0">
+                                    <span class="font-bold text-white block text-sm truncate">1 Month Package</span>
+                                    <span class="text-zinc-500 text-[11px] truncate block">Floor access (5AM - 11PM) • Locker Room • 30 Days</span>
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-800/50">
                                 <span class="font-bold text-white text-sm block">PKR 3,000<span class="text-[10px] text-zinc-500 font-normal">/mo</span></span>
                                 <span class="text-[10px] text-zinc-400 uppercase font-bold">30 Days</span>
                             </div>
                         </div>
 
-                        <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-red-500/30 flex items-center justify-between relative overflow-hidden">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-red-600/20 text-red-500 border border-red-500/30 flex items-center justify-center text-sm">
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-red-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-red-600/20 text-red-500 border border-red-500/30 flex items-center justify-center text-sm shrink-0">
                                     <i class="fa-solid fa-fire"></i>
                                 </div>
-                                <div>
-                                    <span class="font-bold text-white block text-sm">3 Month Package</span>
-                                    <span class="text-zinc-500 text-[11px]">24/7 Access • All Classes • Sauna • 90 Days</span>
+                                <div class="min-w-0">
+                                    <span class="font-bold text-white block text-sm truncate">3 Month Package</span>
+                                    <span class="text-zinc-500 text-[11px] truncate block">24/7 Access • All Classes • Sauna • 90 Days</span>
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-800/50">
                                 <span class="font-bold text-red-400 text-sm block">PKR 8,000<span class="text-[10px] text-zinc-500 font-normal">/3mo</span></span>
                                 <span class="text-[10px] text-red-400 uppercase font-bold">Most Popular</span>
                             </div>
                         </div>
 
-                        <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-sm">
+                        <div class="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-sm shrink-0">
                                     <i class="fa-solid fa-crown"></i>
                                 </div>
-                                <div>
-                                    <span class="font-bold text-white block text-sm">6 Month Package</span>
-                                    <span class="text-zinc-500 text-[11px]">VIP 1-on-1 Coaching • Spa Access • 180 Days</span>
+                                <div class="min-w-0">
+                                    <span class="font-bold text-white block text-sm truncate">6 Month Package</span>
+                                    <span class="text-zinc-500 text-[11px] truncate block">VIP 1-on-1 Coaching • Spa Access • 180 Days</span>
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-left sm:text-right shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-zinc-800/50">
                                 <span class="font-bold text-white text-sm block">PKR 15,000<span class="text-[10px] text-zinc-500 font-normal">/6mo</span></span>
                                 <span class="text-[10px] text-amber-400 uppercase font-bold">Save PKR 3k</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                    </div>
-                </div>
-
-                <!-- Turnstile Access feed commented out for now
-                <div id="attendance" class="lg:col-span-6 glass-card rounded-3xl p-6 border border-zinc-800 shadow-2xl space-y-4">
-                    ...
-                </div>
-                -->
 
             </div>
 
@@ -464,9 +456,9 @@ try {
          MODAL 1: ADD NEW MEMBER
          ============================================================ -->
     <div id="modalAddMember" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="glass-card rounded-3xl p-8 max-w-lg w-full border border-zinc-700 shadow-2xl relative">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-zinc-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
-                <h3 class="font-heading text-2xl font-bold text-white uppercase">Register New Gym Member</h3>
+                <h3 class="font-heading text-xl sm:text-2xl font-bold text-white uppercase">Register New Gym Member</h3>
                 <button onclick="toggleModal('modalAddMember', false)" class="text-zinc-400 hover:text-white p-2">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
@@ -516,7 +508,7 @@ try {
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 mt-4">
+                <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 mt-4 cursor-pointer">
                     <i class="fa-solid fa-check"></i>
                     <span>Save & Provision Keycard</span>
                 </button>
@@ -528,9 +520,9 @@ try {
          MODAL 2: RECORD PAYMENT
          ============================================================ -->
     <div id="modalRecordPayment" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="glass-card rounded-3xl p-8 max-w-md w-full border border-zinc-700 shadow-2xl relative">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-md w-full border border-zinc-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between pb-4 border-b border-zinc-800">
-                <h3 class="font-heading text-2xl font-bold text-white uppercase">Record Gym Payment</h3>
+                <h3 class="font-heading text-xl sm:text-2xl font-bold text-white uppercase">Record Gym Payment</h3>
                 <button onclick="toggleModal('modalRecordPayment', false)" class="text-zinc-400 hover:text-white p-2">
                     <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
@@ -553,7 +545,7 @@ try {
                     </select>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Amount (PKR)</label>
                         <input type="number" step="1" name="amount" id="paymentAmount" value="8000" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
@@ -574,7 +566,7 @@ try {
                     <input type="text" name="notes" placeholder="3 Month Package Subscription Renewal" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500">
                 </div>
 
-                <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 mt-4">
+                <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 mt-4 cursor-pointer">
                     <i class="fa-solid fa-receipt"></i>
                     <span>Confirm & Generate Receipt</span>
                 </button>

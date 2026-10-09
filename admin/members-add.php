@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ?>
 
         <!-- Form Workspace -->
-        <main class="p-6 w-full space-y-8 flex-grow">
+        <main class="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 w-full space-y-6 sm:space-y-8 flex-grow min-w-0">
             
             <?php if ($error): ?>
                 <div class="p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs sm:text-sm flex items-center justify-between shadow-xl">

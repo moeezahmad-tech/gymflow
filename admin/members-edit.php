@@ -331,7 +331,7 @@ $pageTitle = "Edit Member: " . htmlspecialchars($member['full_name'] ?? 'Alex Jo
         ?>
 
         <!-- Main Form Content -->
-        <main class="p-6 space-y-8 flex-grow w-full">
+        <main class="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 space-y-6 sm:space-y-8 flex-grow w-full min-w-0">
             
             <!-- Alert Messages -->
             <?php if ($message): ?>

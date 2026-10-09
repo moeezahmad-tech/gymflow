@@ -145,6 +145,22 @@ CREATE TABLE IF NOT EXISTS `newsletter_subscribers` (
     INDEX `idx_newsletter_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ------------------------------------------------------------
+-- 9. Table: email_campaigns (Broadcasts & Promotional Campaigns)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `email_campaigns` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `subject` VARCHAR(255) NOT NULL,
+    `category` VARCHAR(50) NOT NULL DEFAULT 'Promotion',
+    `target_audience` VARCHAR(100) NOT NULL,
+    `recipient_count` INT NOT NULL DEFAULT 0,
+    `message` LONGTEXT NOT NULL,
+    `status` ENUM('sent', 'draft', 'failed') NOT NULL DEFAULT 'sent',
+    `sent_by` VARCHAR(100) NULL,
+    `sent_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_camp_sent` (`sent_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================================
 -- Seed Data & Initial Records
 -- Default Verified Credentials:

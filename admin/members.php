@@ -169,7 +169,7 @@ try {
         ?>
 
         <!-- Main Content Area -->
-        <main class="p-6 space-y-6 flex-grow">
+        <main class="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 space-y-6 flex-grow min-w-0">
             
             <!-- Success / Flash Messages -->
             <?php if (!empty($_GET['added'])): ?>
