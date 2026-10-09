@@ -1,6 +1,6 @@
 <?php
 /**
- * GymFlow Mobile App - Coach & Front Desk Support
+ * GymFlow Mobile App - Coach & Front Desk Contact Form
  * Clean, Minimal & Modern Native UI
  */
 require_once __DIR__ . '/../config/app.php';
@@ -18,31 +18,33 @@ $db = Database::getConnection();
 $successMsg = null;
 $errorMsg = null;
 
-// Handle Form Submission
+// Handle Contact Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_coach_msg'])) {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $errorMsg = "Session expired. Please try again.";
     } else {
-        $topic = trim($_POST['topic'] ?? 'General Support');
+        $fullName = trim($_POST['full_name'] ?? ($currentUser['name'] ?? 'Member'));
+        $email = trim($_POST['email'] ?? ($currentUser['email'] ?? 'member@gymflow.com'));
+        $phone = trim($_POST['phone'] ?? ($currentUser['phone'] ?? '+923000000000'));
+        $topic = trim($_POST['topic'] ?? 'General Inquiry');
         $rawMessage = trim($_POST['message'] ?? '');
 
-        if (empty($rawMessage)) {
-            $errorMsg = "Please type a message before sending.";
+        if (empty($rawMessage) || empty($topic)) {
+            $errorMsg = "Please provide both a topic and message.";
         } else {
-            $formattedMsg = "[{$topic}] " . $rawMessage;
             try {
                 $stmt = $db->prepare("
                     INSERT INTO contact_messages (full_name, email, phone, program, message, status, created_at)
                     VALUES (:fn, :em, :ph, :topic, :msg, 'unread', NOW())
                 ");
                 $stmt->execute([
-                    ':fn' => $currentUser['name'] ?? 'Member',
-                    ':em' => $currentUser['email'] ?? 'member@gymflow.com',
-                    ':ph' => $currentUser['phone'] ?? '+923000000000',
+                    ':fn' => $fullName,
+                    ':em' => $email,
+                    ':ph' => $phone,
                     ':topic' => $topic,
-                    ':msg' => $formattedMsg
+                    ':msg' => $rawMessage
                 ]);
-                $successMsg = "Message sent! Our coaching team will respond shortly.";
+                $successMsg = "Your message has been sent! Our coaching team will get back to you shortly.";
             } catch (Exception $e) {
                 try {
                     $stmt = $db->prepare("
@@ -50,14 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_coach_msg'])) {
                         VALUES (:fn, :em, :ph, :msg, 'unread', NOW())
                     ");
                     $stmt->execute([
-                        ':fn' => $currentUser['name'] ?? 'Member',
-                        ':em' => $currentUser['email'] ?? 'member@gymflow.com',
-                        ':ph' => $currentUser['phone'] ?? '+923000000000',
-                        ':msg' => $formattedMsg
+                        ':fn' => $fullName,
+                        ':em' => $email,
+                        ':ph' => $phone,
+                        ':msg' => "[{$topic}] " . $rawMessage
                     ]);
-                    $successMsg = "Message sent to coaching team!";
+                    $successMsg = "Your message has been sent to our team!";
                 } catch (Exception $e2) {
-                    $errorMsg = "Unable to send message right now.";
+                    $errorMsg = "Unable to send message right now. Please try again.";
                 }
             }
         }
@@ -80,7 +82,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Coach Support - GymFlow</title>
+    <title>Contact Coach - GymFlow</title>
 
     <meta name="theme-color" content="#070709">
     <link rel="manifest" href="manifest.json">
@@ -155,7 +157,7 @@ try {
             </a>
             <div>
                 <h1 class="font-heading text-2xl font-bold uppercase tracking-wide leading-none text-white">Ask Coach</h1>
-                <p class="text-[11px] text-zinc-400">Desk & Trainer Support</p>
+                <p class="text-[11px] text-zinc-400">Direct Contact & Support</p>
             </div>
         </div>
 
@@ -183,46 +185,50 @@ try {
             </div>
         <?php endif; ?>
 
-        <!-- Main Minimal Composer Form Card -->
+        <!-- Contact Form Card -->
         <div class="bg-zinc-950 rounded-3xl p-5 border border-zinc-800/80 shadow-xl space-y-4">
             
-            <form method="POST" action="" class="space-y-4">
+            <form method="POST" action="" class="space-y-3.5">
                 <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
                 <input type="hidden" name="send_coach_msg" value="1">
-                <input type="hidden" name="topic" id="selectedTopicInput" value="Workout Plan">
 
-                <!-- Clean Topic Selector Pills -->
+                <!-- Full Name -->
                 <div>
-                    <span class="block text-[11px] font-semibold text-zinc-400 mb-2">Topic</span>
-                    <div class="flex flex-wrap gap-2" id="topicList">
-                        <button type="button" onclick="setTopic(this, 'Workout Plan')" class="topic-pill active px-3.5 py-2 rounded-xl bg-red-600/15 border border-red-500 text-red-400 text-xs font-semibold transition-all">
-                            Workout Plan
-                        </button>
-                        <button type="button" onclick="setTopic(this, 'Nutrition')" class="topic-pill px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-semibold transition-all">
-                            Nutrition
-                        </button>
-                        <button type="button" onclick="setTopic(this, 'Gate / Locker')" class="topic-pill px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-semibold transition-all">
-                            Gate / Locker
-                        </button>
-                        <button type="button" onclick="setTopic(this, 'Membership')" class="topic-pill px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-semibold transition-all">
-                            Membership
-                        </button>
+                    <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Your Name</label>
+                    <input type="text" name="full_name" required value="<?= htmlspecialchars($currentUser['name'] ?? '') ?>" placeholder="Full Name" class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl px-3.5 py-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all">
+                </div>
+
+                <!-- Email & Phone Grid -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Email Address</label>
+                        <input type="email" name="email" required value="<?= htmlspecialchars($currentUser['email'] ?? '') ?>" placeholder="name@example.com" class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl px-3.5 py-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Phone Number</label>
+                        <input type="tel" name="phone" value="<?= htmlspecialchars($currentUser['phone'] ?? '') ?>" placeholder="+92 300 1234567" class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl px-3.5 py-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all">
                     </div>
                 </div>
 
-                <!-- Message Input -->
+                <!-- Topic (Text Input) -->
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="text-[11px] font-semibold text-zinc-400">Message</span>
-                        <span id="charCount" class="text-[10px] text-zinc-500 font-mono">0/300</span>
+                    <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Topic / Subject</label>
+                    <input type="text" name="topic" required placeholder="e.g. Workout plan, Nutrition advice, Gate pass issue..." class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl px-3.5 py-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all">
+                </div>
+
+                <!-- Message Textarea -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[11px] font-semibold text-zinc-400">Your Message</label>
+                        <span id="charCount" class="text-[10px] text-zinc-500 font-mono">0/500</span>
                     </div>
-                    <textarea name="message" id="messageInput" required rows="4" maxlength="300" oninput="updateCounter(this)" placeholder="How can our coaching team help you today?..." class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all resize-none"></textarea>
+                    <textarea name="message" id="messageInput" required rows="4" maxlength="500" oninput="updateCounter(this)" placeholder="Describe your question or requirement for the coaching team..." class="w-full bg-zinc-900/90 border border-zinc-800 rounded-2xl p-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/30 transition-all resize-none"></textarea>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 active:scale-95 transition-all">
+                <button type="submit" class="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 active:scale-95 transition-all mt-1">
                     <i class="fa-regular fa-paper-plane text-xs"></i>
-                    <span>Send Message</span>
+                    <span>Submit Inquiry</span>
                 </button>
             </form>
 
@@ -246,8 +252,8 @@ try {
 
         <!-- Recent Inquiries (Minimal List) -->
         <?php if (!empty($myMessages)): ?>
-            <div class="space-y-2 pt-2">
-                <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block px-1">Recent Messages</span>
+            <div class="space-y-2 pt-1">
+                <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block px-1">Recent Inquiries</span>
                 <div class="space-y-2">
                     <?php foreach ($myMessages as $msg): ?>
                         <div class="bg-zinc-950 p-3.5 rounded-2xl border border-zinc-900 space-y-1">
@@ -270,21 +276,9 @@ try {
     </main>
 
     <script>
-        function setTopic(btn, topic) {
-            document.querySelectorAll('.topic-pill').forEach(el => {
-                el.classList.remove('active', 'bg-red-600/15', 'border-red-500', 'text-red-400');
-                el.classList.add('bg-zinc-900', 'border-zinc-800', 'text-zinc-400');
-            });
-            btn.classList.remove('bg-zinc-900', 'border-zinc-800', 'text-zinc-400');
-            btn.classList.add('active', 'bg-red-600/15', 'border-red-500', 'text-red-400');
-
-            document.getElementById('selectedTopicInput').value = topic;
-            document.getElementById('messageInput').focus();
-        }
-
         function updateCounter(textarea) {
             const count = document.getElementById('charCount');
-            if (count) count.textContent = `${textarea.value.length}/300`;
+            if (count) count.textContent = `${textarea.value.length}/500`;
         }
     </script>
 </body>
