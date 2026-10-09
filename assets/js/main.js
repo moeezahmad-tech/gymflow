@@ -59,26 +59,31 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Custom Toast Notification Engine
  * Replaces ugly browser alerts with dark-mode glassmorphic cards
+ * Centered horizontally & responsive across mobile & desktop viewports
  */
 window.showToast = function(message, type = 'success', title = '') {
     let container = document.getElementById('gymflow-toast-container');
     if (!container) {
         container = document.createElement('div');
         container.id = 'gymflow-toast-container';
-        container.className = 'fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full px-4 pointer-events-none';
+        container.className = 'fixed top-5 left-1/2 -translate-x-1/2 sm:top-auto sm:bottom-6 sm:left-auto sm:right-6 sm:translate-x-0 z-[99999] flex flex-col items-center sm:items-end gap-3 max-w-sm w-[92vw] sm:w-full pointer-events-none transition-all';
         document.body.appendChild(container);
     }
 
     const toastId = 'toast-' + Date.now();
     const toast = document.createElement('div');
     toast.id = toastId;
-    toast.className = 'pointer-events-auto flex items-start gap-3 p-4 rounded-2xl bg-[#0c0c12]/95 backdrop-blur-md border shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0';
+    toast.className = 'pointer-events-auto w-full flex items-start gap-3 p-4 rounded-2xl bg-[#0c0c12]/95 backdrop-blur-xl border shadow-2xl transition-all duration-300 transform -translate-y-3 sm:translate-y-4 opacity-0';
 
     let iconHtml = '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>';
     let borderColor = 'border-emerald-500/40 shadow-emerald-500/10';
     let defaultTitle = 'Success';
 
-    if (type === 'fire') {
+    if (type === 'error' || type === 'danger') {
+        iconHtml = '<i class="fa-solid fa-circle-exclamation text-red-500 text-lg"></i>';
+        borderColor = 'border-red-500/50 shadow-red-500/20';
+        defaultTitle = 'Error';
+    } else if (type === 'fire') {
         iconHtml = '<i class="fa-solid fa-fire text-red-500 text-xl animate-bounce"></i>';
         borderColor = 'border-red-500/50 shadow-red-500/20';
         defaultTitle = 'Streak Updated';
@@ -94,6 +99,10 @@ window.showToast = function(message, type = 'success', title = '') {
         iconHtml = '<i class="fa-regular fa-paper-plane text-red-400 text-lg"></i>';
         borderColor = 'border-red-500/40 shadow-red-500/10';
         defaultTitle = 'Message Sent';
+    } else if (type === 'check') {
+        iconHtml = '<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>';
+        borderColor = 'border-emerald-500/40 shadow-emerald-500/10';
+        defaultTitle = 'Complete';
     }
 
     toast.className += ' ' + borderColor;
@@ -102,9 +111,9 @@ window.showToast = function(message, type = 'success', title = '') {
         <div class="shrink-0 pt-0.5">${iconHtml}</div>
         <div class="flex-1 min-w-0">
             <h5 class="text-xs font-bold uppercase tracking-wider text-white">${title || defaultTitle}</h5>
-            <p class="text-xs text-zinc-300 mt-0.5 leading-relaxed">${message}</p>
+            <p class="text-xs text-zinc-300 mt-0.5 leading-relaxed break-words">${message}</p>
         </div>
-        <button onclick="this.closest('#${toastId}').remove()" class="text-zinc-500 hover:text-white text-xs px-1">
+        <button onclick="this.closest('#${toastId}').remove()" class="text-zinc-500 hover:text-white text-xs px-1 cursor-pointer" aria-label="Close Notification">
             <i class="fa-solid fa-xmark"></i>
         </button>
     `;
@@ -113,15 +122,15 @@ window.showToast = function(message, type = 'success', title = '') {
 
     // Animate In
     setTimeout(() => {
-        toast.classList.remove('translate-y-4', 'opacity-0');
+        toast.classList.remove('-translate-y-3', 'sm:translate-y-4', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
     }, 20);
 
-    // Auto Dismiss after 4 seconds
+    // Auto Dismiss after 4.2 seconds
     setTimeout(() => {
         if (toast.parentElement) {
             toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('translate-y-4', 'opacity-0');
+            toast.classList.add('-translate-y-3', 'sm:translate-y-4', 'opacity-0');
             setTimeout(() => toast.remove(), 300);
         }
     }, 4200);

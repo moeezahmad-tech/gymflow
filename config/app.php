@@ -18,7 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Application Information
 define('APP_NAME', 'Gym Flow');
 define('APP_TAGLINE', 'Elevate Your Strength & Peak Performance');
-define('APP_VERSION', '1.0.0');
+define('APP_VERSION', '1.1.0');
 
 // Base URL Auto-detection
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || ($_SERVER['SERVER_PORT'] ?? 80) == 443) ? "https://" : "http://";

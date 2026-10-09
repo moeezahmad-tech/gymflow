@@ -135,3 +135,19 @@ h1, h2, h3, .font-heading {
 .outline-text:hover {
     -webkit-text-stroke: 1.5px rgba(255, 42, 42, 0.8);
 }
+
+/* Alert & Toast Notifications Mobile Positioning */
+#gymflow-toast-container {
+    pointer-events: none;
+}
+
+@media (max-width: 639px) {
+    #gymflow-toast-container {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        right: auto !important;
+        width: 92vw !important;
+        max-width: 380px !important;
+    }
+}
+

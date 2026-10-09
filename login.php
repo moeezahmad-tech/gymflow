@@ -74,7 +74,7 @@ require_once __DIR__ . '/components/header.php';
                     <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">Email or Member ID</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-500"><i class="fa-regular fa-envelope"></i></span>
-                        <input type="text" name="email" id="emailInput" required value="member@gymflow.com" placeholder="member@gymflow.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
+                        <input type="text" name="email" id="emailInput" required value="" placeholder="name@example.com or Member ID" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
                     </div>
                 </div>
 
@@ -85,13 +85,13 @@ require_once __DIR__ . '/components/header.php';
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-500"><i class="fa-solid fa-lock"></i></span>
-                        <input type="password" name="password" id="passwordInput" required value="Member123!" placeholder="••••••••" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
+                        <input type="password" name="password" id="passwordInput" required value="" placeholder="••••••••" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
                     </div>
                 </div>
 
                 <div class="flex items-center text-xs text-zinc-400 pt-1">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked class="w-4 h-4 accent-red-600 rounded">
+                        <input type="checkbox" class="w-4 h-4 accent-red-600 rounded">
                         <span>Remember credentials</span>
                     </label>
                 </div>
@@ -106,12 +106,6 @@ require_once __DIR__ . '/components/header.php';
             <div class="mt-6 pt-6 border-t border-zinc-800 text-center text-xs text-zinc-400">
                 Don't have a gym membership yet? 
                 <a href="<?= url('register.php') ?>" class="text-red-400 font-bold hover:underline ml-1">Create Account</a>
-            </div>
-
-            <!-- Demo Member Credentials Reference -->
-            <div class="mt-4 p-3 rounded-xl bg-zinc-950 border border-zinc-800/80 text-[11px] text-zinc-500 space-y-1">
-                <div class="text-zinc-400 font-bold uppercase text-[10px]">Demo Member Account:</div>
-                <div class="flex justify-between"><span>Member:</span> <code class="text-zinc-300 font-mono">member@gymflow.com / Member123!</code></div>
             </div>
 
         </div>

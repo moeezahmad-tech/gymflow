@@ -71,7 +71,7 @@
 
         const toast = document.createElement('div');
         toast.id = 'pwa-update-toast';
-        toast.className = 'fixed bottom-5 right-5 z-50 bg-zinc-900/95 border border-red-500/40 text-white px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3.5 transition-all transform translate-y-0 text-xs animate-bounce';
+        toast.className = 'fixed top-5 sm:top-auto sm:bottom-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[99999] bg-zinc-900/95 border border-red-500/40 text-white px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3.5 transition-all text-xs w-[92vw] sm:w-auto max-w-sm';
         toast.innerHTML = `
             <div class="w-8 h-8 rounded-xl bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center text-sm flex-shrink-0">
                 <i class="fa-solid fa-arrows-rotate fa-spin"></i>

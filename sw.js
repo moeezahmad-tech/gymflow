@@ -3,7 +3,7 @@
  * Version Management, Offline Caching & Seamless Auto-Update Engine
  */
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 const CACHE_NAME = `gymflow-v${APP_VERSION}`;
 
 // Pre-cached Critical Assets
