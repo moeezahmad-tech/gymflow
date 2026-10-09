@@ -1,0 +1,115 @@
+# ============================================================
+# GymFlow - Production Apache Configuration & Clean URLs
+# ============================================================
+
+# Disable Directory Index Browsing
+Options -Indexes -MultiViews
+
+# Default document
+DirectoryIndex index.php index.html
+
+# Enable Rewrite Engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ------------------------------------------------------------
+    # 1. Security: Block Access to Sensitive Files
+    # ------------------------------------------------------------
+    RewriteRule ^\.env.* - [F,L,NC]
+    RewriteRule ^\.git.* - [F,L,NC]
+    RewriteRule ^\.github.* - [F,L,NC]
+    RewriteRule ^\.gitinfo - [F,L,NC]
+    RewriteRule ^(schema|dump|local_dump).*\.sql$ - [F,L,NC]
+    RewriteRule ^(composer\.(json|lock)|package\.json|package-lock\.json)$ - [F,L,NC]
+    RewriteRule ^cron/.*\.php$ - [F,L,NC]
+
+    # ------------------------------------------------------------
+    # 2. Redirect Direct .php Requests to Clean Extensionless URLs
+    #    (301 Permanent Redirect - Prevents duplicate content)
+    # ------------------------------------------------------------
+    RewriteCond %{THE_REQUEST} \s/+(.*?/)?([^\s?]+)\.php[\s?] [NC]
+    RewriteCond %{REQUEST_URI} !^/sw\.js$ [NC]
+    RewriteRule ^ %1%2 [R=301,L,NE]
+
+    # ------------------------------------------------------------
+    # 3. Remove Trailing Slashes for Non-Directories
+    # ------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [R=301,L]
+
+    # ------------------------------------------------------------
+    # 4. Resolve Extensionless URLs to Corresponding .php Files
+    # ------------------------------------------------------------
+    # Subdirectories or Root Level (e.g. /about -> /about.php, /admin/members -> /admin/members.php)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.+?)/?$ $1.php [L,QSA]
+
+    # ------------------------------------------------------------
+    # 5. Directory Index Resolving (e.g. /admin/ -> /admin/index.php)
+    # ------------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteCond %{REQUEST_FILENAME}/index.php -f
+    RewriteRule ^(.*)$ $1/index.php [L,QSA]
+</IfModule>
+
+# ============================================================
+# Security Headers & Hardening
+# ============================================================
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # PWA Service Worker Scope Headers
+    <Files "sw.js">
+        Header set Service-Worker-Allowed "/"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </Files>
+
+    <Files "manifest.json">
+        Header set Content-Type "application/manifest+json; charset=utf-8"
+        Header set Cache-Control "max-age=3600"
+    </Files>
+</IfModule>
+
+# ============================================================
+# MIME Types for PWA, Fonts & Modern Formats
+# ============================================================
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest .json
+    AddType application/javascript .js .mjs
+    AddType image/svg+xml .svg .svgz
+    AddType image/webp .webp
+    AddType font/woff2 .woff2
+    AddType font/woff .woff
+</IfModule>
+
+# ============================================================
+# Gzip / Deflate Compression
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+    AddOutputFilterByType DEFLATE application/manifest+json application/xml image/svg+xml
+</IfModule>
+
+# ============================================================
+# Browser Caching / Expires Headers
+# ============================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/manifest+json "access plus 1 hour"
+</IfModule>

@@ -77,12 +77,18 @@ function asset($path = ''): string {
 }
 
 /**
- * Helper to generate page URLs
+ * Helper to generate clean, extensionless page URLs
  */
-function url($path = ''): string {
+function url(string $path = ''): string {
     $path = ltrim($path, '/');
+    if ($path === '' || $path === 'index.php') {
+        $cleanPath = '';
+    } else {
+        // Remove .php extension from routes (preserving query strings and hashes)
+        $cleanPath = preg_replace('/\.php(\?|#|$)/', '$1', $path);
+    }
     $prefix = getRootPrefix();
-    return $prefix . $path;
+    return $prefix . ($cleanPath === '' ? ($prefix ? '' : './') : $cleanPath);
 }
 
 /**
