@@ -353,7 +353,6 @@ if ($isAuth) {
                 <div>
                     <h2 class="text-xs font-bold text-white uppercase tracking-wider leading-tight flex items-center gap-1.5">
                         <span><?= htmlspecialchars(explode(' ', $currentUser['name'])[0] ?? 'Athlete') ?></span>
-                        <span class="px-1.5 py-0.5 rounded bg-zinc-800/90 border border-zinc-700 text-zinc-300 font-mono text-[9px] font-bold">PassID: <?= htmlspecialchars($memberCode) ?></span>
                         <?php if ($isAdmin): ?>
                             <span class="px-1.5 py-0.2 rounded bg-red-600/20 text-red-400 text-[9px] font-extrabold border border-red-500/30">ADMIN</span>
                         <?php endif; ?>
