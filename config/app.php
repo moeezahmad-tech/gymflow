@@ -3,6 +3,9 @@
  * GymFlow - Application Configuration & Helpers
  */
 
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 if (!defined('APP_INIT')) {
     define('APP_INIT', true);
 }
