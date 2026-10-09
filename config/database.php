@@ -51,11 +51,13 @@ class Database {
      */
     public static function getConnection(): PDO {
         if (self::$instance === null) {
-            // Read env variables with GYMFLOW_ prefix support & fallback defaults
-            $rawHost = getenv('GYMFLOW_DB_HOST') ?: ($_ENV['GYMFLOW_DB_HOST'] ?? (getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? '127.0.0.1')));
-            $dbName  = getenv('GYMFLOW_DB_NAME') ?: ($_ENV['GYMFLOW_DB_NAME'] ?? (getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'gym_flow')));
-            $dbUser  = getenv('GYMFLOW_DB_USERNAME') ?: ($_ENV['GYMFLOW_DB_USERNAME'] ?? (getenv('DB_USERNAME') ?: ($_ENV['DB_USERNAME'] ?? 'root')));
-            $dbPass  = getenv('GYMFLOW_DB_PASSWORD') ?: ($_ENV['GYMFLOW_DB_PASSWORD'] ?? (getenv('DB_PASSWORD') ?: ($_ENV['DB_PASSWORD'] ?? '')));
+            $isProductionHost = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'techkreative.com') !== false;
+
+            // Read env variables with GYMFLOW_ prefix support & smart defaults
+            $rawHost = getenv('GYMFLOW_DB_HOST') ?: ($_ENV['GYMFLOW_DB_HOST'] ?? (getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? ($isProductionHost ? 'sdb-65.hosting.stackcp.net' : '127.0.0.1'))));
+            $dbName  = getenv('GYMFLOW_DB_NAME') ?: ($_ENV['GYMFLOW_DB_NAME'] ?? (getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? ($isProductionHost ? 'gymflow-35303339d352' : 'gym_flow'))));
+            $dbUser  = getenv('GYMFLOW_DB_USERNAME') ?: ($_ENV['GYMFLOW_DB_USERNAME'] ?? (getenv('DB_USERNAME') ?: ($_ENV['DB_USERNAME'] ?? ($isProductionHost ? 'gymflow-35303339d352' : 'root'))));
+            $dbPass  = getenv('GYMFLOW_DB_PASSWORD') ?: ($_ENV['GYMFLOW_DB_PASSWORD'] ?? (getenv('DB_PASSWORD') ?: ($_ENV['DB_PASSWORD'] ?? ($isProductionHost ? 'em3m:£(v_Znu' : '12345678'))));
             
             // Clean host in case protocol or port is passed (e.g., http://localhost:3306 or localhost:3306)
             $host = preg_replace('/^https?:\/\//i', '', $rawHost);
@@ -79,13 +81,10 @@ class Database {
             try {
                 self::$instance = new PDO($dsn, $dbUser, $dbPass, $options);
             } catch (PDOException $e) {
-                // Return clean error in development or log it
                 error_log("Database Connection Error: " . $e->getMessage());
-                die(json_encode([
-                    'status' => 'error',
-                    'message' => 'Database connection failed: ' . $e->getMessage(),
-                    'hint' => 'Please verify your GYMFLOW_DB_NAME, credentials, and MySQL server in .env (stored in root or parent directory)'
-                ]));
+                http_response_code(500);
+                echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Database Setup Required</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="assets/css/style.css"></head><body style="background:#050507;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px;"><div style="max-width:550px;background:#121217;border:1px solid #27272a;border-radius:16px;padding:32px;text-align:center;"><h2 style="color:#ef4444;margin-top:0;">Database Connection Notice</h2><p style="color:#a1a1aa;font-size:14px;line-height:1.6;">' . htmlspecialchars($e->getMessage()) . '</p><div style="background:#18181b;border:1px solid #3f3f46;border-radius:10px;padding:16px;margin:20px 0;text-align:left;font-size:12px;color:#d4d4d8;"><strong>Troubleshooting:</strong><br>1. Make sure MySQL database exists on your host.<br>2. Check that <code>.env</code> file is in the root or parent directory with valid <code>GYMFLOW_DB_*</code> credentials.<br>3. Import <code>schema.sql</code> into phpMyAdmin.</div><a href="." style="display:inline-block;background:#dc2626;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:bold;">Retry Connection</a></div></body></html>';
+                exit;
             }
         }
 

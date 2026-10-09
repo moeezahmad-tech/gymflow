@@ -51,6 +51,41 @@ try {
 } catch (Exception $e) {
     $dbPlans = [];
 }
+
+if (empty($dbPlans)) {
+    $dbPlans = [
+        [
+            'id' => 1,
+            'name' => '1 Month Package',
+            'slug' => '1-month',
+            'description' => 'Essential gym floor & strength access for 1 full month',
+            'price' => 3000.00,
+            'duration_days' => 30,
+            'features' => json_encode(["Standard Gym Floor Access (5AM - 11PM)", "Locker room & shower facilities", "1 Free Trainer Fitness Assessment", "GymFlow Mobile App Workout Tracker", "No Long-Term Commitment"]),
+            'is_popular' => 0
+        ],
+        [
+            'id' => 2,
+            'name' => '3 Month Package',
+            'slug' => '3-months',
+            'description' => 'Our most popular quarterly package with classes & training perks',
+            'price' => 8000.00,
+            'duration_days' => 90,
+            'features' => json_encode(["Full 24/7 Gym Access for 90 Days", "All Fitness Classes Included (Boxing, HIIT, Yoga)", "Monthly 1-on-1 Personal Trainer Session", "Custom Nutrition & Meal Blueprint", "Finnish Sauna & Cold Plunge Access", "Save PKR 1,000 vs Monthly"]),
+            'is_popular' => 1
+        ],
+        [
+            'id' => 3,
+            'name' => '6 Month Package',
+            'slug' => '6-months',
+            'description' => 'VIP semi-annual transformation package with maximum savings',
+            'price' => 15000.00,
+            'duration_days' => 180,
+            'features' => json_encode(["Full 24/7 VIP All-Facility Access for 180 Days", "Weekly 1-on-1 Dedicated Coaching Sessions", "Reserved Private Locker & Towel Service", "Monthly InBody Body Composition Scans", "6 Free VIP Guest Passes Included", "Save PKR 3,000 with Half-Year Pass"]),
+            'is_popular' => 0
+        ]
+    ];
+}
 ?>
 
     <!-- Pricing Cards Section -->
