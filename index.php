@@ -20,7 +20,7 @@ require_once __DIR__ . '/components/header.php';
     <!-- ============================================================
          1. HIGH-CONVERSION HERO SECTION
          ============================================================ -->
-    <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-black py-20 lg:py-32">
+    <section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-black py-5 lg:py-32">
         <!-- Background Dark Gradient Overlay & Athletic Dot Pattern -->
         <div class="absolute inset-0 z-0 bg-gradient-to-b from-black/85 via-black/60 to-black pointer-events-none"></div>
         <div class="absolute inset-0 z-0 bg-[radial-gradient(#ff2a2a_1px,transparent_1px)] [background-size:32px_32px] opacity-10 pointer-events-none"></div>
