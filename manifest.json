@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-  "name": "GymFlow - Ultimate Gym & Fitness Management",
+  "name": "GymFlow Member App",
   "short_name": "GymFlow",
-  "description": "Premium fitness club, workouts tracker, turnstile QR access, and member management portal.",
-  "start_url": "./index.php",
+  "description": "GymFlow Mobile Member App - Turnstile Gate Pass, Workouts, Check-in Streak & Membership Hub",
+  "start_url": "./app/index.php",
   "scope": "./",
   "id": "com.gymflow.app",
   "display": "standalone",

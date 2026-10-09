@@ -172,13 +172,21 @@ $currentUser = getCurrentUser();
                     </a>
                 <?php endif; ?>
 
-                <!-- Mobile PWA Install Trigger -->
-                <button type="button" onclick="window.triggerPWAInstall()" class="text-sm font-heading tracking-wider uppercase text-zinc-300 bg-zinc-900 border-zinc-800 hover:border-red-500 px-4 py-3 rounded-xl border flex items-center justify-between mt-2 transition-colors">
+                <!-- Standalone Mobile App Launch & Install Triggers -->
+                <a href="<?= url('app/index.php') ?>" class="text-sm font-heading tracking-wider uppercase text-white bg-gradient-to-r from-red-600/20 to-red-900/30 border border-red-500/40 hover:border-red-500 px-4 py-3 rounded-xl flex items-center justify-between mt-2 transition-all">
                     <span class="flex items-center gap-2.5">
-                        <i class="fa-solid fa-mobile-screen text-red-500"></i>
-                        <span>Install Mobile App (iOS / Android)</span>
+                        <i class="fa-solid fa-mobile-screen-button text-red-500"></i>
+                        <span>Launch GymFlow App</span>
                     </span>
-                    <i class="fa-solid fa-download text-xs text-red-400"></i>
+                    <i class="fa-solid fa-arrow-right text-xs text-red-400"></i>
+                </a>
+
+                <button type="button" onclick="window.triggerPWAInstall()" class="text-sm font-heading tracking-wider uppercase text-zinc-300 bg-zinc-900 border-zinc-800 hover:border-red-500 px-4 py-3 rounded-xl border flex items-center justify-between transition-colors cursor-pointer">
+                    <span class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-download text-red-500"></i>
+                        <span>Install PWA App</span>
+                    </span>
+                    <i class="fa-solid fa-arrow-down text-xs text-zinc-400"></i>
                 </button>
             </nav>
         </div>
