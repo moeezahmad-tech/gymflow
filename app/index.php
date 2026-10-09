@@ -328,7 +328,7 @@ if ($isAuth) {
 
         <!-- Return to Public Website link -->
         <div class="text-center pt-4 pb-2 safe-bottom">
-            <a href="<?= url('index.php') ?>" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center justify-center gap-1.5">
+            <a href="https://gymflow.techkreative.com/" target="_blank" rel="noopener noreferrer" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-globe text-[10px]"></i>
                 <span>Open GymFlow Website</span>
             </a>
@@ -701,7 +701,7 @@ if ($isAuth) {
                         <span class="text-[10px] text-zinc-500 font-mono">v1.1.0</span>
                     </button>
 
-                    <a href="<?= url('index.php') ?>" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
+                    <a href="https://gymflow.techkreative.com/" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-globe text-emerald-400 text-sm"></i>
                             <span class="font-medium text-zinc-200">Open Public Website</span>
