@@ -38,10 +38,20 @@ function formatPrice($amount, $decimals = 0): string {
     return CURRENCY_SYMBOL . number_format((float)$amount, $decimals);
 }
 
+function isAppSubdirServer(): bool {
+    $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '');
+    $projectRoot = str_replace('\\', '/', realpath(dirname(__DIR__)) ?: dirname(__DIR__));
+    return ($docRoot && strtolower($docRoot) === strtolower($projectRoot . '/app'));
+}
+
 /**
  * Accurately calculate relative path back to project root
  */
 function getRootPrefix(): string {
+    if (isAppSubdirServer()) {
+        return '';
+    }
+
     $projectRoot = str_replace('\\', '/', realpath(dirname(__DIR__)) ?: dirname(__DIR__));
     $scriptFilename = $_SERVER['SCRIPT_FILENAME'] ?? '';
     
@@ -90,6 +100,17 @@ function url(string $path = ''): string {
         // Remove .php extension from routes (preserving query strings and hashes)
         $cleanPath = preg_replace('/\.php(\?|#|$)/', '$1', $path);
     }
+
+    // If running on a server rooted directly in /app (e.g. localhost:8081)
+    if (isAppSubdirServer()) {
+        if (strpos($cleanPath, 'app/') === 0) {
+            $cleanPath = substr($cleanPath, 4);
+        } elseif ($cleanPath === 'app') {
+            $cleanPath = '';
+        }
+        return ($cleanPath === '' ? 'index.php' : $cleanPath . '.php');
+    }
+
     $prefix = getRootPrefix();
     return $prefix . ($cleanPath === '' ? ($prefix ? '' : './') : $cleanPath);
 }

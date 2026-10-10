@@ -101,8 +101,13 @@ if ($filter === 'unread') {
 }
 
 if (!empty($search)) {
-    $sql .= " AND (full_name LIKE :q OR email LIKE :q OR phone LIKE :q OR message LIKE :q OR program LIKE :q)";
-    $params[':q'] = "%{$search}%";
+    $sql .= " AND (full_name LIKE :q1 OR email LIKE :q2 OR phone LIKE :q3 OR message LIKE :q4 OR program LIKE :q5)";
+    $qWildcard = "%{$search}%";
+    $params[':q1'] = $qWildcard;
+    $params[':q2'] = $qWildcard;
+    $params[':q3'] = $qWildcard;
+    $params[':q4'] = $qWildcard;
+    $params[':q5'] = $qWildcard;
 }
 
 $sql .= " ORDER BY id DESC";

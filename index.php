@@ -18,63 +18,68 @@ require_once __DIR__ . '/components/header.php';
 
 <main class="flex-grow">
     <!-- ============================================================
-         1. HIGH-CONVERSION HERO SECTION
+         1. HIGH-CONVERSION HERO SECTION (MAIN HEADER BANNER)
          ============================================================ -->
-    <section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-black py-5 lg:py-32">
-        <!-- Background Dark Gradient Overlay & Athletic Dot Pattern -->
-        <div class="absolute inset-0 z-0 bg-gradient-to-b from-black/85 via-black/60 to-black pointer-events-none"></div>
-        <div class="absolute inset-0 z-0 bg-[radial-gradient(#ff2a2a_1px,transparent_1px)] [background-size:32px_32px] opacity-10 pointer-events-none"></div>
+    <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-black py-16 lg:py-32">
         
-        <!-- Local Hero Background Banner Image -->
-        <div class="absolute inset-0 z-[-1] opacity-40 scale-105 transform filter grayscale contrast-125 bg-cover bg-center" style="background-image: url('<?= asset('images/0d931a74f61693ae690eeeac95436444.jpg') ?>');"></div>
+        <!-- Vibrant Cinematic Gym Background Image (Positioned at z-0, visible and sharp) -->
+        <div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-60 scale-100" style="background-image: url('<?= asset('images/3844e94a9c5f8420999736d4aa364aac.jpg') ?>');"></div>
+        
+        <!-- Atmospheric Vignette & Red Ambient Gradients -->
+        <div class="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/45 to-black pointer-events-none"></div>
+        <div class="absolute inset-0 z-0 bg-gradient-to-r from-black/85 via-transparent to-black/85 pointer-events-none"></div>
+        <div class="absolute inset-0 z-0 bg-[radial-gradient(#ff2a2a_1.5px,transparent_1.5px)] [background-size:32px_32px] opacity-15 pointer-events-none"></div>
+        
+        <!-- Top Subtle Glow Line -->
+        <div class="absolute top-0 inset-x-0 z-0 h-32 bg-gradient-to-b from-red-600/15 to-transparent pointer-events-none"></div>
 
         <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
             
-
-            <!-- Watermark Athletic Outline Text -->
-            <div class="outline-text font-heading text-6xl sm:text-8xl md:text-9xl font-extrabold uppercase tracking-widest leading-none select-none -mb-8 sm:-mb-14 opacity-35">
-                YOUR FITNESS
+            <!-- Premium Facility Pill Badge -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/60 border border-red-500/40 backdrop-blur-md text-red-400 text-xs font-bold uppercase tracking-widest mb-6 shadow-[0_0_25px_rgba(255,42,42,0.25)]">
+                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                <span>Metropolis Premier Strength Club</span>
             </div>
 
             <!-- Main High Impact Title -->
-            <h1 class="font-heading text-5xl sm:text-7xl md:text-8xl font-black uppercase text-white tracking-wide leading-tight drop-shadow-2xl">
+            <h1 class="font-heading text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black uppercase text-white tracking-wide leading-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
                 BEGIN YOUR <br class="hidden sm:block" />
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-red-500">FITNESS JOURNEY</span>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-100 to-red-500 drop-shadow-[0_0_35px_rgba(255,42,42,0.4)]">FITNESS JOURNEY</span>
             </h1>
 
-            <p class="mt-6 text-base sm:text-lg text-zinc-300 max-w-2xl font-normal leading-relaxed">
+            <p class="mt-6 text-base sm:text-lg lg:text-xl text-zinc-300 max-w-2xl font-normal leading-relaxed drop-shadow-md">
                 Transform your physique and elevate athletic capacity with specialized barbell programming, HIIT combat, and master personal coaches.
             </p>
 
             <!-- Call to Actions -->
             <div class="mt-10 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-                <a href="<?= url('pricing.php') ?>" class="btn-primary text-sm sm:text-base font-bold uppercase tracking-wider px-8 py-4 rounded-xl shadow-xl shadow-red-600/30 inline-flex items-center gap-2">
+                <a href="<?= url('pricing.php') ?>" class="btn-primary text-sm sm:text-base font-bold uppercase tracking-wider px-8 py-4 rounded-2xl shadow-[0_0_30px_rgba(255,42,42,0.4)] hover:shadow-[0_0_40px_rgba(255,42,42,0.6)] inline-flex items-center gap-2.5 transform hover:scale-105 transition-all">
                     <span>Explore Memberships</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </a>
-                <button type="button" onclick="window.triggerPWAInstall()" class="btn-outline text-sm sm:text-base font-bold uppercase tracking-wider px-8 py-4 rounded-xl inline-flex items-center gap-2.5 hover:border-red-500 transition-all cursor-pointer">
+                <button type="button" onclick="window.triggerPWAInstall()" class="bg-black/60 hover:bg-zinc-900 border border-zinc-700/80 hover:border-red-500 backdrop-blur-md text-white text-sm sm:text-base font-bold uppercase tracking-wider px-8 py-4 rounded-2xl inline-flex items-center gap-2.5 transition-all transform hover:scale-105 cursor-pointer shadow-lg shadow-black/60">
                     <i class="fa-solid fa-mobile-screen-button text-red-500 text-base"></i>
                     <span>Get App</span>
                 </button>
             </div>
 
-            <!-- Stats Bar -->
-            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10 w-full max-w-4xl border-t border-zinc-800/80 pt-8">
-                <div class="text-center">
-                    <span class="font-heading text-4xl sm:text-5xl font-bold text-red-500">500+</span>
-                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-semibold mt-1">Active Members</p>
+            <!-- Stats Bar (Glass Cards) -->
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 w-full max-w-4xl border-t border-zinc-800/80 pt-10">
+                <div class="bg-black/40 backdrop-blur-md border border-zinc-800/70 rounded-2xl p-4 text-center">
+                    <span class="font-heading text-4xl sm:text-5xl font-bold text-red-500 drop-shadow-md">500+</span>
+                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-bold mt-1">Active Members</p>
                 </div>
-                <div class="text-center">
-                    <span class="font-heading text-4xl sm:text-5xl font-bold text-white">45+</span>
-                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-semibold mt-1">Weekly Classes</p>
+                <div class="bg-black/40 backdrop-blur-md border border-zinc-800/70 rounded-2xl p-4 text-center">
+                    <span class="font-heading text-4xl sm:text-5xl font-bold text-white drop-shadow-md">45+</span>
+                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-bold mt-1">Weekly Classes</p>
                 </div>
-                <div class="text-center">
-                    <span class="font-heading text-4xl sm:text-5xl font-bold text-red-500">20+</span>
-                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-semibold mt-1">Elite Coaches</p>
+                <div class="bg-black/40 backdrop-blur-md border border-zinc-800/70 rounded-2xl p-4 text-center">
+                    <span class="font-heading text-4xl sm:text-5xl font-bold text-red-500 drop-shadow-md">20+</span>
+                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-bold mt-1">Elite Coaches</p>
                 </div>
-                <div class="text-center">
-                    <span class="font-heading text-4xl sm:text-5xl font-bold text-white">24/7</span>
-                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-semibold mt-1">Keycard Access</p>
+                <div class="bg-black/40 backdrop-blur-md border border-zinc-800/70 rounded-2xl p-4 text-center">
+                    <span class="font-heading text-4xl sm:text-5xl font-bold text-white drop-shadow-md">24/7</span>
+                    <p class="text-xs uppercase tracking-widest text-zinc-400 font-bold mt-1">Keycard Access</p>
                 </div>
             </div>
 

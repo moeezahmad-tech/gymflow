@@ -1,6 +1,6 @@
 <?php
 /**
- * GymFlow - Admin Add New Member Form
+ * GymFlow - Admin Add New Member Form (Simplified & Streamlined)
  */
 require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../config/database.php';
@@ -11,7 +11,7 @@ requireAdmin();
 
 $activeAdminTab = 'members-add';
 $currentUser = getCurrentUser();
-$pageTitle = "Add New Member - " . APP_NAME;
+$pageTitle = "Register New Member - " . APP_NAME;
 
 $error = null;
 $plansList = [];
@@ -31,10 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fullName = trim($_POST['full_name'] ?? '');
         $email    = trim($_POST['email'] ?? '');
         $phone    = trim($_POST['phone'] ?? '');
-        $password = $_POST['password'] ?? 'Member123!';
-        $planId   = (int)($_POST['plan_id'] ?? 2);
-        $duration = (int)($_POST['duration_days'] ?? 30);
-        $status   = in_array($_POST['status'] ?? '', ['active', 'inactive', 'suspended']) ? $_POST['status'] : 'active';
+        $password = !empty($_POST['password']) ? $_POST['password'] : 'Member123!';
+        $planId   = (int)($_POST['plan_id'] ?? 1);
+        $status   = 'active'; // Default active account with 24/7 access
 
         if (empty($fullName) || empty($email)) {
             $error = "Member Name and Email Address are required.";
@@ -50,6 +49,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($chk->fetch()) {
                     $error = "A member with this email address already exists in the system.";
                 } else {
+                    // Determine package duration & price automatically from selected plan
+                    $planDuration = 30;
+                    $planAmount = 3500.00;
+                    $planName = 'Membership Package';
+
+                    if (!empty($plansList)) {
+                        foreach ($plansList as $pl) {
+                            if ((int)$pl['id'] === $planId) {
+                                $planDuration = (int)($pl['duration_days'] ?? 30);
+                                $planAmount = (float)($pl['price'] ?? 3500.00);
+                                $planName = $pl['name'];
+                                break;
+                            }
+                        }
+                    }
+
                     $tempCode = date('Y') . '-TEMP-' . rand(100, 999);
                     $hashedPassword = hashPassword($password);
 
@@ -70,48 +85,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                     $newUserId = (int)$db->lastInsertId();
 
-                    // Update to smooth member code: Year-ID (e.g. 2026-15)
+                    // Update to clean member code: Year-ID (e.g. 2026-15)
                     $memberCode = date('Y') . '-' . $newUserId;
                     $db->prepare("UPDATE users SET member_code = :code WHERE id = :id")->execute([':code' => $memberCode, ':id' => $newUserId]);
 
-                    // 2. Insert membership
+                    // 2. Insert membership aligned with 10th of every month schedule
+                    $months = max(1, (int)round($planDuration / 30));
+                    $today = new DateTime();
+                    $day = (int)$today->format('j');
+                    $dt = clone $today;
+                    if ($day >= 10) {
+                        $dt->modify("+{$months} month");
+                    } else {
+                        $dt->modify("+" . max(1, $months) . " month");
+                    }
+                    $dt->setDate((int)$dt->format('Y'), (int)$dt->format('m'), 10);
+                    $initialEndDate = $dt->format('Y-m-d');
+
                     $stmtMem = $db->prepare("
                         INSERT INTO memberships (user_id, plan_id, start_date, end_date, status, auto_renew)
-                        VALUES (:uid, :pid, CURDATE(), DATE_ADD(CURDATE(), INTERVAL :days DAY), :mstatus, 1)
+                        VALUES (:uid, :pid, CURDATE(), :end_date, 'active', 1)
                     ");
                     $stmtMem->execute([
-                        ':uid'     => $newUserId,
-                        ':pid'     => $planId,
-                        ':days'    => $duration,
-                        ':mstatus' => $status
+                        ':uid'      => $newUserId,
+                        ':pid'      => $planId,
+                        ':end_date' => $initialEndDate
                     ]);
                     $membershipId = (int)$db->lastInsertId();
 
-                    // 3. Determine plan price
-                    $planAmount = 8000.00;
-                    if (!empty($plansList)) {
-                        foreach ($plansList as $pl) {
-                            if ((int)$pl['id'] === $planId) {
-                                $planAmount = (float)$pl['price'];
-                                break;
-                            }
-                        }
-                    } elseif ($planId === 1) {
-                        $planAmount = 3000.00;
-                    } elseif ($planId === 3) {
-                        $planAmount = 15000.00;
-                    }
-
-                    // 4. Insert Initial Paid Record
+                    // 3. Insert Initial Paid Record
                     $stmtPay = $db->prepare("
                         INSERT INTO payments (user_id, membership_id, amount, payment_method, transaction_id, status, due_date, paid_at, notes)
-                        VALUES (:uid, :mid, :amount, 'Front Desk Activation', :txid, 'paid', CURDATE(), NOW(), 'Initial membership payment on registration')
+                        VALUES (:uid, :mid, :amount, 'Front Desk Activation', :txid, 'paid', :due_date, NOW(), :notes)
                     ");
                     $stmtPay->execute([
-                        ':uid'    => $newUserId,
-                        ':mid'    => $membershipId,
-                        ':amount' => $planAmount,
-                        ':txid'   => 'TXN-ADM-' . strtoupper(uniqid())
+                        ':uid'      => $newUserId,
+                        ':mid'      => $membershipId,
+                        ':amount'   => $planAmount,
+                        ':txid'     => 'TXN-ADM-' . strtoupper(uniqid()),
+                        ':due_date' => $initialEndDate,
+                        ':notes'    => 'Initial ' . $planName . ' activation payment (Monthly 10th cycle)'
                     ]);
 
                     $db->commit();
@@ -184,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Unified Header -->
         <?php 
         $adminHeaderTitle = "REGISTER NEW MEMBER";
-        $adminHeaderSubtitle = "Assign membership tier, create digital keycard & provision portal access";
+        $adminHeaderSubtitle = "Enter member profile and select an active package to provision 24/7 keycard access";
         require_once __DIR__ . '/../components/admin-header.php'; 
         ?>
 
@@ -192,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 w-full space-y-6 sm:space-y-8 flex-grow min-w-0">
             
             <?php if ($error): ?>
-                <div class="p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs sm:text-sm flex items-center justify-between shadow-xl">
+                <div class="p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs sm:text-sm flex items-center justify-between shadow-xl animate-fade-in">
                     <div class="flex items-center gap-3">
                         <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg"></i>
                         <span><?= htmlspecialchars($error) ?></span>
@@ -201,24 +214,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="" class="space-y-6">
-                <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+            <form method="POST" action="" class="space-y-6 w-full">
+                <?= getCSRFTokenInput() ?>
 
-                <!-- Section 1: Member Personal Information -->
-                <div class="glass-card rounded-3xl p-6 sm:p-8 border border-zinc-800 shadow-2xl space-y-5">
-                    <div class="border-b border-zinc-800 pb-4">
-                        <span class="text-red-500 text-xs font-bold uppercase tracking-widest">Step 01</span>
-                        <h3 class="font-heading text-2xl font-bold text-white uppercase">Personal & Contact Profile</h3>
+                <!-- Step 01: Member Basic Details -->
+                <div class="bg-zinc-950/80 border border-zinc-900 rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
+                    <div class="border-b border-zinc-900 pb-4">
+                        <span class="text-red-500 text-[10px] font-extrabold uppercase tracking-widest block">Step 01</span>
+                        <h3 class="font-heading text-xl font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus text-red-500"></i> Basic Member Details
+                        </h3>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Full Legal Name *</label>
-                            <input type="text" name="full_name" required placeholder="Marcus Vance" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                                Full Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="full_name" required placeholder="e.g. Marcus Vance" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Email Address *</label>
-                            <input type="email" name="email" required placeholder="marcus@example.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" name="email" required placeholder="e.g. marcus@gymflow.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
                         </div>
                     </div>
 
@@ -233,67 +252,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <option value="+92 333 ">Ufone (+92 333)</option>
                                 <option value="+92 345 ">Telenor (+92 345)</option>
                                 <option value="+92 312 ">Zong (+92 312)</option>
-                                <option value="+92 300 1234567">Sample (+92 300 1234567)</option>
                             </datalist>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Portal Access Password</label>
-                            <input type="password" name="password" value="Member123!" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                                Portal Access Password
+                            </label>
+                            <div class="relative">
+                                <input type="password" id="memberPasswordInput" name="password" value="Member123!" required class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 pr-10 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-colors">
+                                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 text-xs cursor-pointer">
+                                    <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="text-[10px] text-zinc-500 mt-1 block">Default: Member123! (Member can change on login)</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 2: Membership Assignment -->
-                <div class="glass-card rounded-3xl p-6 sm:p-8 border border-zinc-800 shadow-2xl space-y-5">
-                    <div class="border-b border-zinc-800 pb-4">
-                        <span class="text-red-500 text-xs font-bold uppercase tracking-widest">Step 02</span>
-                        <h3 class="font-heading text-2xl font-bold text-white uppercase">Membership Tier & Duration</h3>
+                <!-- Step 02: Active Membership Package Only -->
+                <div class="bg-zinc-950/80 border border-zinc-900 rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
+                    <div class="border-b border-zinc-900 pb-4 flex items-center justify-between">
+                        <div>
+                            <span class="text-red-500 text-[10px] font-extrabold uppercase tracking-widest block">Step 02</span>
+                            <h3 class="font-heading text-xl font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-cubes text-red-500"></i> Active Membership Package
+                            </h3>
+                        </div>
+                        <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt"></i> Auto-Active 24/7 Access
+                        </span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Membership Package *</label>
-                            <select name="plan_id" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors">
-                                <?php if (!empty($plansList)): ?>
-                                    <?php foreach ($plansList as $p): ?>
-                                        <option value="<?= (int)$p['id'] ?>" <?= (int)$p['id'] === 2 ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($p['name']) ?> (PKR <?= number_format((float)$p['price']) ?> / <?= (int)$p['duration_days'] ?> Days)
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <option value="1">1 Month Package (PKR 3,000 / 30 Days)</option>
-                                    <option value="2" selected>3 Month Package (PKR 8,000 / 90 Days)</option>
-                                    <option value="3">6 Month Package (PKR 15,000 / 180 Days)</option>
-                                <?php endif; ?>
-                            </select>
-                        </div>
+                    <!-- Interactive Package Selection Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <?php 
+                        $firstPlan = true;
+                        foreach ($plansList as $p): 
+                            $isDefault = $firstPlan;
+                            $firstPlan = false;
+                        ?>
+                            <label class="package-card relative flex flex-col justify-between p-5 rounded-2xl border transition-all cursor-pointer <?= $isDefault ? 'border-red-500 bg-zinc-900/90 shadow-lg shadow-red-500/10' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 hover:bg-zinc-900' ?>">
+                                <input type="radio" name="plan_id" value="<?= (int)$p['id'] ?>" <?= $isDefault ? 'checked' : '' ?> onchange="highlightSelectedPackage(this)" class="sr-only">
+                                
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-zinc-300"><?= htmlspecialchars($p['name']) ?></span>
+                                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+                                            <?= (int)$p['duration_days'] ?> Days
+                                        </span>
+                                    </div>
+                                    <div class="text-2xl font-heading font-extrabold text-white">
+                                        PKR <?= number_format((float)$p['price']) ?>
+                                    </div>
+                                    <?php if (!empty($p['description'])): ?>
+                                        <p class="text-[11px] text-zinc-400 line-clamp-2"><?= htmlspecialchars($p['description']) ?></p>
+                                    <?php endif; ?>
+                                </div>
 
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Duration</label>
-                            <select name="duration_days" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors">
-                                <option value="30" selected>1 Month (30 Days)</option>
-                                <option value="90">3 Months (90 Days)</option>
-                                <option value="180">6 Months (180 Days)</option>
-                                <option value="365">1 Year (365 Days)</option>
-                            </select>
-                        </div>
+                                <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-[11px]">
+                                    <span class="text-zinc-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-shield-halved text-emerald-400 text-xs"></i> 24/7 Turnstile Pass
+                                    </span>
+                                    <span class="check-indicator font-bold text-red-500 <?= $isDefault ? '' : 'opacity-0' ?>">
+                                        <i class="fa-solid fa-circle-check text-base"></i>
+                                    </span>
+                                </div>
+                            </label>
+                        <?php endforeach; ?>
 
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">Initial Account Status</label>
-                            <select name="status" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition-colors">
-                                <option value="active" selected>Active (24/7 Access)</option>
-                                <option value="inactive">Inactive / Pending</option>
-                                <option value="suspended">Suspended</option>
-                            </select>
-                        </div>
+                        <?php if (empty($plansList)): ?>
+                            <label class="package-card relative flex flex-col justify-between p-5 rounded-2xl border border-red-500 bg-zinc-900/90 shadow-lg shadow-red-500/10 cursor-pointer">
+                                <input type="radio" name="plan_id" value="1" checked class="sr-only">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold uppercase tracking-wider text-zinc-300">1 Month Package</span>
+                                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">30 Days</span>
+                                    </div>
+                                    <div class="text-2xl font-heading font-extrabold text-white">PKR 3,500</div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-[11px]">
+                                    <span class="text-zinc-400"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Full Access</span>
+                                    <span class="check-indicator font-bold text-red-500"><i class="fa-solid fa-circle-check text-base"></i></span>
+                                </div>
+                            </label>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Submit Action Buttons -->
                 <div class="flex items-center gap-4 pt-2">
-                    <button type="submit" class="btn-primary text-xs uppercase font-bold tracking-wider px-8 py-4 rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2">
+                    <button type="submit" class="btn-primary text-xs uppercase font-bold tracking-wider px-8 py-4 rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-user-check"></i>
-                        <span>Register Member & Provision Keycard</span>
+                        <span>Register Member & Provision Access</span>
                     </button>
                     <a href="<?= url('admin/members.php') ?>" class="btn-outline text-xs uppercase font-bold tracking-wider px-6 py-4 rounded-xl">
                         Cancel
@@ -304,5 +354,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </main>
     </div>
 
+    <script>
+    function highlightSelectedPackage(radio) {
+        document.querySelectorAll('.package-card').forEach(card => {
+            const input = card.querySelector('input[type="radio"]');
+            const check = card.querySelector('.check-indicator');
+            if (input && input.checked) {
+                card.classList.add('border-red-500', 'bg-zinc-900/90', 'shadow-lg', 'shadow-red-500/10');
+                card.classList.remove('border-zinc-800', 'bg-zinc-900/50');
+                if (check) check.classList.remove('opacity-0');
+            } else {
+                card.classList.remove('border-red-500', 'bg-zinc-900/90', 'shadow-lg', 'shadow-red-500/10');
+                card.classList.add('border-zinc-800', 'bg-zinc-900/50');
+                if (check) check.classList.add('opacity-0');
+            }
+        });
+    }
+
+    function togglePasswordVisibility() {
+        const input = document.getElementById('memberPasswordInput');
+        const icon = document.getElementById('eyeIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+    </script>
 </body>
 </html>

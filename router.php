@@ -24,12 +24,16 @@ if ($uriPath === '/' || $uriPath === '') {
     exit;
 }
 
-// 2. Direct static assets (CSS, JS, images, fonts, icons, manifest, etc.) -> Let PHP serve directly
-if (file_exists($targetFile) && !is_dir($targetFile)) {
-    return false;
+// 2. Explicit PHP file request (e.g., /contact.php, /login.php, /app/coach.php)
+if (file_exists($targetFile) && !is_dir($targetFile) && substr($targetFile, -4) === '.php') {
+    $_SERVER['SCRIPT_FILENAME'] = $targetFile;
+    $_SERVER['SCRIPT_NAME'] = $uriPath;
+    $_SERVER['PHP_SELF'] = $uriPath;
+    require $targetFile;
+    exit;
 }
 
-// 3. Extensionless PHP file in root or subdirectories (e.g., /about, /pricing, /admin/newsletter, /admin/members)
+// 3. Extensionless PHP file in root or subdirectories (e.g., /about, /pricing, /admin/newsletter, /admin/members, /app/coach)
 if (file_exists($targetFile . '.php')) {
     $_SERVER['SCRIPT_FILENAME'] = $targetFile . '.php';
     $_SERVER['SCRIPT_NAME'] = $uriPath . '.php';
@@ -38,7 +42,7 @@ if (file_exists($targetFile . '.php')) {
     exit;
 }
 
-// 4. Directory with index.php (e.g., /admin, /admin/, /user, /user/)
+// 4. Directory with index.php (e.g., /admin, /admin/, /app, /app/)
 if (is_dir($targetFile)) {
     $dirIndex = rtrim($targetFile, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.php';
     if (file_exists($dirIndex)) {
@@ -50,13 +54,9 @@ if (is_dir($targetFile)) {
     }
 }
 
-// 5. Explicit PHP file request (e.g., /contact.php, /login.php)
-if (file_exists($targetFile) && substr($targetFile, -4) === '.php') {
-    $_SERVER['SCRIPT_FILENAME'] = $targetFile;
-    $_SERVER['SCRIPT_NAME'] = $uriPath;
-    $_SERVER['PHP_SELF'] = $uriPath;
-    require $targetFile;
-    exit;
+// 5. Direct static assets (CSS, JS, images, fonts, icons, manifest, etc.) -> Let PHP serve directly
+if (file_exists($targetFile) && !is_dir($targetFile)) {
+    return false;
 }
 
 // 6. Not Found -> 404 response

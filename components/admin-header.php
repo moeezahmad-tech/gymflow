@@ -86,11 +86,11 @@ $headerSubtitle = $adminHeaderSubtitle ?? ('Live Operational Control • ' . dat
                 <a href="<?= url('admin/members.php') ?>" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-2 transition-colors">
                     <i class="fa-solid fa-users text-blue-400"></i> Members Directory
                 </a>
-                <a href="<?= url('admin/payments.php') ?>" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-2 transition-colors">
-                    <i class="fa-solid fa-credit-card text-amber-400"></i> Fee & Dues Ledger
+                <a href="<?= url('admin/plans.php') ?>" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-layer-group text-amber-400"></i> Membership Plans
                 </a>
-                <a href="<?= url('admin/newsletter.php') ?>" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-2 transition-colors">
-                    <i class="fa-solid fa-bullhorn text-purple-400"></i> Email Broadcasts
+                <a href="<?= url('admin/messages.php') ?>" class="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-envelope-open-text text-purple-400"></i> Client Inquiries
                 </a>
             </div>
         </div>

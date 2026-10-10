@@ -117,7 +117,7 @@ try {
         WHERE status = 'pending' AND due_date IS NOT NULL AND due_date < CURDATE()
     ");
 
-    // Calculate Summary Metrics (All-time or Filtered)
+    // Calculate Summary Metrics
     $stmtMetrics = $db->query("
         SELECT 
             COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) AS paid_sum,
@@ -140,25 +140,49 @@ try {
     if ($statusFilter === 'paid') {
         $where[] = "p.status = 'paid'";
     } elseif ($statusFilter === 'pending') {
-        $where[] = "(p.status = 'pending' AND (p.due_date >= CURDATE() OR p.due_date IS NULL))";
+        $where[] = "p.status = 'pending'";
     } elseif ($statusFilter === 'overdue') {
         $where[] = "(p.status = 'overdue' OR (p.status = 'pending' AND p.due_date < CURDATE()))";
     }
 
-    // Filter by Date Range (Paid date for paid, Due date for pending/overdue)
+    // Filter by Date Range (Paid date, Due date, or Creation date)
     if (!empty($startDate)) {
-        $where[] = "(COALESCE(p.paid_at, p.due_date, p.created_at) >= :start_date)";
-        $params[':start_date'] = $startDate . " 00:00:00";
+        $where[] = "DATE(COALESCE(p.paid_at, p.due_date, p.created_at)) >= :start_date";
+        $params[':start_date'] = $startDate;
     }
     if (!empty($endDate)) {
-        $where[] = "(COALESCE(p.paid_at, p.due_date, p.created_at) <= :end_date)";
-        $params[':end_date'] = $endDate . " 23:59:59";
+        $where[] = "DATE(COALESCE(p.paid_at, p.due_date, p.created_at)) <= :end_date";
+        $params[':end_date'] = $endDate;
     }
 
-    // Filter by Search Query
+    // Filter by Search Query (Name, Email, Member Code / Pass ID, Transaction ID, Payment Method, Plan Name, User ID)
     if (!empty($search)) {
-        $where[] = "(u.full_name LIKE :search OR u.email LIKE :search OR u.member_code LIKE :search OR p.transaction_id LIKE :search)";
-        $params[':search'] = "%{$search}%";
+        $cleanSearch = trim(preg_replace('/^(pass\s*id:?|gf-|pass-)/i', '', $search));
+
+        $where[] = "(
+            u.full_name LIKE :s1 
+            OR u.email LIKE :s2 
+            OR u.member_code LIKE :s3 
+            OR u.member_code LIKE :s3_clean
+            OR CONCAT('2026-', u.id) LIKE :s3_pass
+            OR CONCAT('GF-', COALESCE(u.member_code, '')) LIKE :s3_gf
+            OR p.transaction_id LIKE :s4 
+            OR p.payment_method LIKE :s5 
+            OR mp.name LIKE :s6
+            OR u.id = :s_uid
+        )";
+        $searchWildcard = "%{$search}%";
+        $cleanWildcard = "%{$cleanSearch}%";
+        $params[':s1'] = $searchWildcard;
+        $params[':s2'] = $searchWildcard;
+        $params[':s3'] = $searchWildcard;
+        $params[':s3_clean'] = $cleanWildcard;
+        $params[':s3_pass'] = $cleanWildcard;
+        $params[':s3_gf'] = $searchWildcard;
+        $params[':s4'] = $searchWildcard;
+        $params[':s5'] = $searchWildcard;
+        $params[':s6'] = $searchWildcard;
+        $params[':s_uid'] = is_numeric($cleanSearch) ? (int)$cleanSearch : 0;
     }
 
     $whereClause = implode(' AND ', $where);
@@ -178,7 +202,7 @@ try {
                 WHEN p.status = 'pending' THEN 2
                 ELSE 3
             END,
-            COALESCE(p.due_date, p.created_at) DESC
+            COALESCE(p.paid_at, p.due_date, p.created_at) DESC
         LIMIT 100
     ";
 
@@ -335,32 +359,49 @@ try {
             <!-- ============================================================
                  2. CATEGORY TABS & DATE RANGE FILTER BAR
                  ============================================================ -->
+            <?php
+            // Helper to generate consistent filter links
+            function getPaymentsFilterUrl($targetStatus, $currentSearch, $currentStart, $currentEnd) {
+                $p = [];
+                if ($targetStatus !== 'all') $p['status'] = $targetStatus;
+                if (!empty($currentSearch)) $p['search'] = $currentSearch;
+                if (!empty($currentStart)) $p['start_date'] = $currentStart;
+                if (!empty($currentEnd)) $p['end_date'] = $currentEnd;
+                return url('admin/payments.php') . (!empty($p) ? '?' . http_build_query($p) : '');
+            }
+            $hasActiveFilters = ($statusFilter !== 'all' || !empty($startDate) || !empty($endDate) || !empty($search));
+            ?>
             <div class="glass-card rounded-3xl p-4 sm:p-6 border border-zinc-800 shadow-2xl space-y-6">
                 
                 <!-- Top Status Categorization Tabs -->
                 <div class="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-5">
                     <div class="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs font-bold uppercase tracking-wider">
-                        <a href="?status=all<?= !empty($startDate) ? '&start_date=' . urlencode($startDate) : '' ?><?= !empty($endDate) ? '&end_date=' . urlencode($endDate) : '' ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'all' ? 'bg-red-600 text-white shadow-md' : 'text-zinc-400 hover:text-white' ?>">
+                        <a href="<?= getPaymentsFilterUrl('all', $search, $startDate, $endDate) ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'all' ? 'bg-red-600 text-white shadow-md' : 'text-zinc-400 hover:text-white' ?>">
                             All Records
                         </a>
-                        <a href="?status=paid<?= !empty($startDate) ? '&start_date=' . urlencode($startDate) : '' ?><?= !empty($endDate) ? '&end_date=' . urlencode($endDate) : '' ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'paid' ? 'bg-emerald-600 text-white shadow-md' : 'text-zinc-400 hover:text-white' ?>">
+                        <a href="<?= getPaymentsFilterUrl('paid', $search, $startDate, $endDate) ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'paid' ? 'bg-emerald-600 text-white shadow-md' : 'text-zinc-400 hover:text-white' ?>">
                             <i class="fa-solid fa-circle-check text-[10px] mr-1"></i> Paid Collections
                         </a>
-                        <a href="?status=pending<?= !empty($startDate) ? '&start_date=' . urlencode($startDate) : '' ?><?= !empty($endDate) ? '&end_date=' . urlencode($endDate) : '' ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'pending' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-400 hover:text-white' ?>">
+                        <a href="<?= getPaymentsFilterUrl('pending', $search, $startDate, $endDate) ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'pending' ? 'bg-amber-500 text-black shadow-md' : 'text-zinc-400 hover:text-white' ?>">
                             <i class="fa-solid fa-clock text-[10px] mr-1"></i> Pending Invoices
                         </a>
-                        <a href="?status=overdue<?= !empty($startDate) ? '&start_date=' . urlencode($startDate) : '' ?><?= !empty($endDate) ? '&end_date=' . urlencode($endDate) : '' ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'overdue' ? 'bg-red-600 text-white shadow-md animate-pulse' : 'text-zinc-400 hover:text-red-400' ?>">
+                        <a href="<?= getPaymentsFilterUrl('overdue', $search, $startDate, $endDate) ?>" class="px-4 py-2 rounded-xl transition-all <?= $statusFilter === 'overdue' ? 'bg-red-600 text-white shadow-md animate-pulse' : 'text-zinc-400 hover:text-red-400' ?>">
                             <i class="fa-solid fa-triangle-exclamation text-[10px] mr-1"></i> Overdue Dues
                         </a>
                     </div>
 
-                    <div class="text-xs text-zinc-400">
+                    <div class="flex items-center gap-3 text-xs text-zinc-400">
                         <span>Showing <strong><?= count($paymentsList) ?></strong> matching fee transactions</span>
+                        <?php if ($hasActiveFilters): ?>
+                            <a href="<?= url('admin/payments.php') ?>" class="text-[11px] font-bold text-red-400 hover:text-red-300 underline flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> Reset Filter
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Date Range & Search Form -->
-                <form method="GET" action="" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+                <form method="GET" action="<?= url('admin/payments.php') ?>" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                     <input type="hidden" name="status" value="<?= htmlspecialchars($statusFilter) ?>">
 
                     <!-- Search Input -->
@@ -377,20 +418,24 @@ try {
                     <!-- Date Range: Start Date -->
                     <div class="sm:col-span-3">
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">From Date</label>
-                        <input type="date" name="start_date" value="<?= htmlspecialchars($startDate) ?>" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500">
+                        <input type="date" id="filterStartDate" name="start_date" value="<?= htmlspecialchars($startDate) ?>" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500">
                     </div>
 
                     <!-- Date Range: End Date -->
-                    <div class="sm:col-span-3">
+                    <div class="sm:col-span-2">
                         <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">To Date</label>
-                        <input type="date" name="end_date" value="<?= htmlspecialchars($endDate) ?>" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500">
+                        <input type="date" id="filterEndDate" name="end_date" value="<?= htmlspecialchars($endDate) ?>" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-red-500">
                     </div>
 
-                    <!-- Filter & Reset Buttons -->
-                    <div class="sm:col-span-1 flex gap-2">
-                        <button type="submit" class="btn-primary w-full py-2.5 rounded-xl text-xs uppercase font-bold tracking-wider flex items-center justify-center" title="Apply Filter">
-                            <i class="fa-solid fa-filter"></i>
+                    <!-- Filter & Reset Action Buttons -->
+                    <div class="sm:col-span-2 flex gap-2">
+                        <button type="submit" class="btn-primary flex-1 py-2.5 rounded-xl text-xs uppercase font-bold tracking-wider flex items-center justify-center gap-1 cursor-pointer" title="Apply Filter">
+                            <i class="fa-solid fa-filter text-xs"></i>
+                            <span>Filter</span>
                         </button>
+                        <a href="<?= url('admin/payments.php') ?>" class="px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold uppercase flex items-center justify-center transition-colors cursor-pointer" title="Clear Filters">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
                     </div>
                 </form>
 

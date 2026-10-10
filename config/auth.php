@@ -27,6 +27,13 @@ function getCSRFToken(): string {
 }
 
 /**
+ * Generate CSRF Token Hidden Input HTML
+ */
+function getCSRFTokenInput(): string {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(getCSRFToken(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+/**
  * Verify CSRF Token
  */
 function verifyCSRFToken($token = null): bool {

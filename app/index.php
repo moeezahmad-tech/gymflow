@@ -14,9 +14,11 @@ $success = null;
 // Handle Mobile App Logout directly
 if ((isset($_GET['action']) && $_GET['action'] === 'logout') || isset($_GET['logout'])) {
     logoutUser();
-    $isAppSubdir = (strpos($_SERVER['REQUEST_URI'] ?? '', '/app') !== false);
-    $redirectUrl = $isAppSubdir ? url('app/index.php') : './index.php';
-    header('Location: ' . $redirectUrl);
+    $cleanUri = strtok($_SERVER['REQUEST_URI'] ?? '', '?');
+    if (empty($cleanUri) || $cleanUri === '') {
+        $cleanUri = 'index.php';
+    }
+    header('Location: ' . $cleanUri);
     exit;
 }
 
@@ -100,9 +102,11 @@ if ($isAuth) {
 
     $currentMonth = date('Y-m');
     $distinctDates = [];
+    $userAttendanceMap = [];
     foreach ($allAtt as $row) {
         $cDate = $row['check_date'];
         $distinctDates[$cDate] = true;
+        $userAttendanceMap[$cDate] = date('h:i A', strtotime($row['check_in_time']));
         if (strpos($row['check_in_time'], $currentMonth) === 0) {
             $monthlyCheckIns++;
         }
@@ -368,12 +372,8 @@ if ($isAuth) {
                 <button type="button" onclick="switchAppTab('notifications')" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm" title="Alerts & Notifications">
                     <i class="fa-regular fa-bell"></i>
                 </button>
-                <!-- Coach Support (Dedicated Page) -->
-                <a href="coach.php" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 hover:text-red-400 flex items-center justify-center text-sm shadow-sm active:scale-95 transition-all" title="Ask Coach">
-                    <i class="fa-regular fa-comment-dots"></i>
-                </a>
                 <!-- App Logout -->
-                <a href="logout.php" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-red-400 flex items-center justify-center text-xs shadow-sm" title="Sign Out">
+                <a href="?action=logout" class="w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-red-400 flex items-center justify-center text-xs shadow-sm" title="Sign Out">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
             </div>
@@ -387,33 +387,6 @@ if ($isAuth) {
                  ========================================== -->
             <div id="tab-home" class="tab-pane active space-y-4">
                 
-                <!-- Quick Turnstile QR Pass Card -->
-                <div class="glass-card rounded-3xl p-5 border border-zinc-800/90 relative overflow-hidden">
-                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none"></div>
-                    
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-1">Entry Pass</span>
-                            <h3 class="font-heading text-2xl font-bold uppercase text-white leading-none">Turnstile Access</h3>
-                            <p class="text-xs text-zinc-400 mt-1">Tap below to scan at gym turnstile</p>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase <?= $todayCheckedIn ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20' ?>">
-                            <?= $todayCheckedIn ? 'Active Today' : 'Ready' ?>
-                        </span>
-                    </div>
-
-                    <!-- Instant Check-in Action Bar -->
-                    <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-3">
-                        <button type="button" onclick="triggerAppCheckIn()" id="quickCheckInBtn" class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-red-600/30 active:scale-95 transition-all">
-                            <i class="fa-solid fa-bolt"></i>
-                            <span id="quickCheckInText"><?= $todayCheckedIn ? 'Gate Passed (' . $todayCheckInTime . ')' : '1-Tap Gate Check-In' ?></span>
-                        </button>
-                        <button type="button" onclick="switchAppTab('qr')" class="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center justify-center">
-                            <i class="fa-solid fa-expand text-sm"></i>
-                        </button>
-                    </div>
-                </div>
-
                 <!-- 3-Pill Athletic Stats Grid -->
                 <div class="grid grid-cols-3 gap-2.5">
                     <!-- Current Streak -->
@@ -464,6 +437,59 @@ if ($isAuth) {
                         <span>Details</span>
                         <i class="fa-solid fa-chevron-right text-[9px]"></i>
                     </button>
+                </div>
+
+                <!-- ==========================================
+                     MONTHLY WORKOUT ATTENDANCE CALENDAR
+                     ========================================== -->
+                <div class="glass-card rounded-3xl p-4 sm:p-5 border border-zinc-800/90 space-y-4">
+                    <!-- Header & Month Controls -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Workout Log</span>
+                            <h3 id="calMonthTitle" class="font-heading text-xl font-bold uppercase text-white leading-none">Attendance Calendar</h3>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="changeCalMonth(-1)" class="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition-all" title="Previous Month">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <button type="button" onclick="resetCalToCurrentMonth()" class="px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[10px] font-bold text-zinc-300 hover:text-white active:scale-95 transition-all">
+                                Today
+                            </button>
+                            <button type="button" onclick="changeCalMonth(1)" class="w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white flex items-center justify-center text-xs active:scale-95 transition-all" title="Next Month">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Days of Week Row -->
+                    <div class="grid grid-cols-7 gap-1 text-center font-heading text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                        <span>Sun</span>
+                        <span>Mon</span>
+                        <span>Tue</span>
+                        <span>Wed</span>
+                        <span>Thu</span>
+                        <span>Fri</span>
+                        <span>Sat</span>
+                    </div>
+
+                    <!-- Calendar Days Grid (Populated dynamically) -->
+                    <div id="calDaysGrid" class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center"></div>
+
+                    <!-- Calendar Legend & Stats Footer -->
+                    <div class="pt-3 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-500/50"></span>
+                                <span class="text-zinc-300 font-bold">Present</span>
+                            </span>
+                            <span class="inline-flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full border border-red-500 bg-red-500/20"></span>
+                                <span class="text-zinc-300 font-bold">Today</span>
+                            </span>
+                        </div>
+                        <span id="calAttendedCountBadge" class="font-bold text-emerald-400">0 Sessions</span>
+                    </div>
                 </div>
 
             </div>
@@ -685,14 +711,6 @@ if ($isAuth) {
                 </div>
 
                 <div class="glass-card rounded-3xl p-4 border border-zinc-800/80 space-y-1 divide-y divide-zinc-800/60">
-                    <a href="coach.php" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
-                        <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-headset text-red-500 text-sm"></i>
-                            <span class="font-medium text-zinc-200">Contact Coach / Desk</span>
-                        </span>
-                        <i class="fa-solid fa-chevron-right text-[10px] text-zinc-600"></i>
-                    </a>
-
                     <button type="button" onclick="showAppToast('GymFlow App is up to date (v1.1.0)', 'info')" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left hover:text-red-400 transition-colors">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-mobile-screen-button text-blue-400 text-sm"></i>
@@ -709,7 +727,7 @@ if ($isAuth) {
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-zinc-600"></i>
                     </a>
 
-                    <a href="logout.php" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left text-red-400 hover:text-red-300 font-bold transition-colors">
+                    <a href="?action=logout" class="w-full py-3 px-2 flex items-center justify-between text-xs text-left text-red-400 hover:text-red-300 font-bold transition-colors">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-power-off text-red-500 text-sm"></i>
                             <span>Sign Out of App</span>
@@ -777,6 +795,104 @@ if ($isAuth) {
      APP JAVASCRIPT LOGIC & PWA SERVICE WORKER
      ============================================================ -->
 <script>
+    // Attendance Calendar Data & Engine
+    const userAttendanceMap = <?= json_encode($userAttendanceMap ?? []) ?>;
+    let currentCalDate = new Date();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    function renderAppCalendar(year, month) {
+        const grid = document.getElementById('calDaysGrid');
+        const title = document.getElementById('calMonthTitle');
+        const badge = document.getElementById('calAttendedCountBadge');
+        if (!grid || !title) return;
+
+        title.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const prevMonthTotalDays = new Date(year, month, 0).getDate();
+
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        let html = '';
+        let attendedCount = 0;
+
+        // Previous month padding days
+        for (let i = firstDayIndex - 1; i >= 0; i--) {
+            const pDay = prevMonthTotalDays - i;
+            html += `<div class="h-9 sm:h-10 rounded-xl flex items-center justify-center text-[11px] font-medium text-zinc-700/60 pointer-events-none select-none">${pDay}</div>`;
+        }
+
+        // Current month days
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isToday = (dateStr === todayStr);
+            const checkInTime = userAttendanceMap[dateStr];
+            const isAttended = Boolean(checkInTime);
+
+            if (isAttended) {
+                attendedCount++;
+                html += `
+                    <button type="button" onclick="showDayAttendance('${dateStr}', '${checkInTime}')" 
+                        class="h-9 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex flex-col items-center justify-center relative hover:scale-105 active:scale-95 transition-all shadow-sm shadow-emerald-500/10" 
+                        title="Checked in at ${checkInTime}">
+                        <span class="leading-none">${day}</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1 shadow-sm shadow-emerald-400"></span>
+                    </button>
+                `;
+            } else if (isToday) {
+                html += `
+                    <div class="h-9 sm:h-10 rounded-xl bg-red-600/15 border border-red-500 text-white font-bold text-xs flex flex-col items-center justify-center relative shadow-sm shadow-red-500/20">
+                        <span class="leading-none text-red-400">${day}</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mt-1 animate-ping"></span>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="h-9 sm:h-10 rounded-xl bg-zinc-900/40 hover:bg-zinc-800/50 border border-zinc-800/40 text-zinc-400 font-medium text-xs flex items-center justify-center transition-colors">
+                        ${day}
+                    </div>
+                `;
+            }
+        }
+
+        // Next month padding days to complete 7-column row
+        const totalRenderedCells = firstDayIndex + totalDays;
+        const nextMonthPadding = (7 - (totalRenderedCells % 7)) % 7;
+        for (let j = 1; j <= nextMonthPadding; j++) {
+            html += `<div class="h-9 sm:h-10 rounded-xl flex items-center justify-center text-[11px] font-medium text-zinc-700/60 pointer-events-none select-none">${j}</div>`;
+        }
+
+        grid.innerHTML = html;
+        if (badge) {
+            badge.textContent = `${attendedCount} Session${attendedCount === 1 ? '' : 's'}`;
+        }
+    }
+
+    function changeCalMonth(delta) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+        renderAppCalendar(currentCalDate.getFullYear(), currentCalDate.getMonth());
+    }
+
+    function resetCalToCurrentMonth() {
+        currentCalDate = new Date();
+        renderAppCalendar(currentCalDate.getFullYear(), currentCalDate.getMonth());
+    }
+
+    function showDayAttendance(dateStr, timeStr) {
+        showAppToast(`Workout recorded on ${dateStr} at ${timeStr} 🏋️‍♂️`, 'success');
+    }
+
+    // Initialize Attendance Calendar on Load
+    document.addEventListener('DOMContentLoaded', () => {
+        renderAppCalendar(currentCalDate.getFullYear(), currentCalDate.getMonth());
+    });
+
     // Tab Navigation Logic
     function switchAppTab(tabName) {
         if ('vibrate' in navigator) navigator.vibrate(8);
@@ -815,6 +931,11 @@ if ($isAuth) {
                 if (data.success) {
                     showAppToast(data.message, 'success');
                     if (btnText) btnText.textContent = 'Gate Passed (' + data.time + ')';
+                    // Reload calendar immediately
+                    const today = new Date();
+                    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                    userAttendanceMap[todayStr] = data.time;
+                    renderAppCalendar(currentCalDate.getFullYear(), currentCalDate.getMonth());
                 } else {
                     showAppToast(data.message, 'error');
                     if (btnText) btnText.textContent = 'Check-In';
