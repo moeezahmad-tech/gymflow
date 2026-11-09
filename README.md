@@ -165,8 +165,12 @@ GYM management system/
 
 ## 📚 Comprehensive Documentation Index
 
-Explore the in-depth documentation inside the [`docs/`](file:///e:/Coding/GYM%20management%20system/docs/) folder:
+Explore the complete product breakdown, architecture, and technical documentation located in [`docs/`](file:///e:/Coding/GYM%20management%20system/docs/):
 
+* 🚀 **[Product Core System Specification (`docs/PRODUCT_CORE_SYSTEM_SPEC.md`)](file:///e:/Coding/GYM%20management%20system/docs/PRODUCT_CORE_SYSTEM_SPEC.md)**: Master blueprint detailing the IaaS product scope, roadmap (Phase 1 vs. Phase 2), remote biometrics & QR strategy, framework recommendations, and current system specs.
+* 🌐 **[Website Landing Page Overview (`docs/WEBSITE_LANDING_OVERVIEW.md`)](file:///e:/Coding/GYM%20management%20system/docs/WEBSITE_LANDING_OVERVIEW.md)**: Marketing positioning, visual layout blueprint, and AI landing page redesign prompt.
+* 🎨 **[Design System & Style Guide (`docs/design.md`)](file:///e:/Coding/GYM%20management%20system/docs/design.md)**: Color tokens, typography (`Teko` & `Plus Jakarta Sans`), glassmorphism UI patterns, mobile PWA navigation, and status badges.
+* 🌟 **[Gym Management Portal & Specification (`docs/GYM_MANAGEMENT_PORTAL.md`)](file:///e:/Coding/GYM%20management%20system/docs/GYM_MANAGEMENT_PORTAL.md)**: Master document detailing what this product does, all core features, and system capabilities.
 * 📖 **[Features Specification (`docs/features.md`)](file:///e:/Coding/GYM%20management%20system/docs/features.md)**: Exhaustive breakdown of public web features, member portal, mobile PWA, administrative billing, CRM, and security matrices.
 * ⚙️ **[System & Technical Requirements (`docs/requirements.md`)](file:///e:/Coding/GYM%20management%20system/docs/requirements.md)**: PHP versions, required extensions, web server configs (Apache/Nginx/PHP CLI), and hardware sizing.
 * 🏛️ **[System Architecture (`docs/architecture.md`)](file:///e:/Coding/GYM%20management%20system/docs/architecture.md)**: Architectural diagrams (Mermaid), URL routing mechanics, RBAC layer, and notification pipeline.
