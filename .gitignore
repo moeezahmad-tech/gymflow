@@ -14,6 +14,10 @@ composer.phar
 
 # Node / Frontend Build (if used)
 /node_modules/
+/.next/
+/out/
+/build/
+nextprompt.txt
 /npm-debug.log*
 /yarn-error.log*
 /pnpm-debug.log*

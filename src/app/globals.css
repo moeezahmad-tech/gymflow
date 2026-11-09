@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #000000;
+  color: #f3f4f6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  letter-spacing: -0.011em;
+}
+
+h1, h2, h3, .font-heading {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.025em;
+}
+
+/* Custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #070708;
+}
+::-webkit-scrollbar-thumb {
+  background: #22252c;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff2a2a;
+}
+
+@keyframes scanLaser {
+  0% {
+    top: 5%;
+    opacity: 0.2;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    opacity: 0.2;
+  }
+}
+
+
+/* Authentic fluted vertical pleats texture like in reference design */
+.bg-fluted-dark {
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      rgba(5, 1, 1, 0.98) 0px,
+      rgba(20, 3, 3, 0.92) 12px,
+      rgba(40, 6, 6, 0.82) 16px,
+      rgba(15, 2, 2, 0.95) 20px,
+      rgba(5, 1, 1, 0.98) 26px
+    );
+}

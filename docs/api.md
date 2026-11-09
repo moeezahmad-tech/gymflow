@@ -1,248 +1,196 @@
-# GymFlow &mdash; RESTful API & Endpoint Documentation
+# GymFlow &mdash; RESTful API & Serverless Route Handlers
 
-This document describes the application programming interfaces (APIs), endpoints, request payloads, response schemas, and authentication methods available in GymFlow.
+This document describes the serverless route handlers, request payloads, response schemas, and normalizers available in the Next.js 15 App Router backend of **GymFlow**.
 
 ---
 
 ## Table of Contents
 1. [General API Standards](#1-general-api-standards)
-2. [Public API Gateway (`/api/index.php`)](#2-public-api-gateway-apiindexphp)
-   - [System Health & Status](#21-system-health--status)
-   - [Active Membership Plans](#22-active-membership-plans)
-   - [Contact Inquiry Submission](#23-contact-inquiry-submission)
-3. [Newsletter Subscription API (`/api/subscribe.php`)](#3-newsletter-subscription-api-apisubscribephp)
-4. [Mobile App Internal API (`/app/api.php`)](#4-mobile-app-internal-api-appapiphp)
-   - [Turnstile / Daily Check-in](#41-turnstile--daily-check-in)
-   - [Direct Coach Consultation](#42-direct-coach-consultation)
-5. [Automated Cron Webhook (`/cron/payment_reminders.php`)](#5-automated-cron-webhook-cronpayment_remindersphp)
-6. [Error Handling & HTTP Status Codes](#6-error-handling--http-status-codes)
+2. [Turnstile Verification Route (`/api/attendance`)](#2-turnstile-verification-route-apiattendance)
+   - [GET /api/attendance (Camera & URL Scan Verification)](#21-get-apiattendance)
+   - [POST /api/attendance (Hardware & Webhook Entry Log)](#22-post-apiattendance)
+   - [Smart Member Code Normalizer](#23-smart-member-code-normalizer)
+3. [Automated Billing Cron Worker (`/api/cron/payment-reminders`)](#3-automated-billing-cron-worker-apicronpayment-reminders)
+4. [HTTP Status Codes & Error Formats](#4-http-status-codes--error-formats)
 
 ---
 
 ## 1. General API Standards
 
-* **Base URL:** `http://localhost:8080/` (or your production domain).
-* **Data Format:** JSON (`Content-Type: application/json; charset=utf-8`).
-* **Cross-Origin Requests (CORS):** Supported for local and app origins.
-* **Authentication:** Session-cookie based for mobile app endpoints; public endpoints require input validation.
+* **Base URL:** `http://localhost:3000/` (Local) or `https://your-domain.vercel.app/` (Production)
+* **Response Content-Type:** `application/json; charset=utf-8`
+* **Database Connection:** Serverless pooled query against **Neon PostgreSQL** via **Drizzle ORM**
+* **Cross-Origin Requests (CORS):** Fully supported for mobile PWAs, external hardware bridges, and kiosk tablets.
 
 ---
 
-## 2. Public API Gateway (`/api/index.php`)
+## 2. Turnstile Verification Route (`/api/attendance`)
 
-### 2.1 System Health & Status
-Checks application runtime status, version, and database readiness.
-
-* **Endpoint:** `GET /api/index.php?action=status`
-* **Auth Required:** No
-
-#### Example Response:
-```json
-{
-  "status": "success",
-  "app": "Gym Flow",
-  "version": "1.1.0",
-  "database": "configured",
-  "timestamp": 1728637920
-}
-```
+Located at `src/app/api/attendance/route.ts`. Handles real-time credential validation, status checks, dues cutoff verification, and event logging.
 
 ---
 
-### 2.2 Active Membership Plans
-Retrieves all currently active membership tiers, pricing in PKR, and features.
+### 2.1 GET /api/attendance
 
-* **Endpoint:** `GET /api/index.php?action=plans`
-* **Auth Required:** No
+Used by smartphone cameras (iOS Camera, Google Lens), browser taps, and direct URL lookups.
 
-#### Example Response:
+* **Method:** `GET`
+* **URL:** `/api/attendance?code={memberCode}&log={true|false}`
+* **Parameters:**
+  * `code` (string, required): Member ID (e.g. `2026-4`) or full scan URL.
+  * `log` (boolean, optional, default `true`): Whether to record an attendance record in the database.
+
+#### Example Request:
+```bash
+curl -X GET "http://localhost:3000/api/attendance?code=2026-4&log=true"
+```
+
+#### Successful Access Granted Response (`HTTP 200`):
 ```json
 {
-  "status": "success",
-  "data": [
-    {
-      "id": 1,
-      "name": "1 Month Package",
-      "slug": "1-month",
-      "description": "Essential gym floor & strength access for 1 full month",
-      "price": "3000.00",
-      "duration_days": 30,
-      "features": "[\"Standard Gym Floor Access (5AM - 11PM)\", \"Locker room & shower facilities\", \"1 Free Trainer Fitness Assessment\", \"GymFlow Mobile App Workout Tracker\", \"No Long-Term Commitment\"]",
-      "is_popular": 0,
-      "status": "active"
-    },
-    {
-      "id": 2,
-      "name": "3 Month Package",
-      "slug": "3-months",
-      "description": "Our most popular quarterly package with classes & training perks",
-      "price": "8000.00",
-      "duration_days": 90,
-      "features": "[\"Full 24/7 Gym Access for 90 Days\", \"All Fitness Classes Included (Boxing, HIIT, Yoga)\", \"Monthly 1-on-1 Personal Trainer Session\", \"Custom Nutrition & Meal Blueprint\", \"Finnish Sauna & Cold Plunge Access\", \"Save PKR 1,000 vs Monthly\"]",
-      "is_popular": 1,
-      "status": "active"
-    }
-  ]
+  "success": true,
+  "access": "granted",
+  "timestamp": "2026-03-09T18:45:00.000Z",
+  "member": {
+    "id": 4,
+    "fullName": "Moeez Ahmad",
+    "memberCode": "2026-4",
+    "email": "moeezahmad.tech@gmail.com",
+    "phone": "+92 325 9491349",
+    "status": "active",
+    "avatar": null,
+    "planName": "3-Month Pro Athlete Plan",
+    "subscriptionStatus": "active",
+    "expiryDate": "10/05/2026"
+  },
+  "message": "Access Granted. Welcome to GymFlow, Moeez Ahmad!"
 }
 ```
 
----
-
-### 2.3 Contact Inquiry Submission
-Receives contact inquiries submitted via web or external mobile clients.
-
-* **Endpoint:** `POST /api/index.php?action=contact`
-* **Headers:** `Content-Type: application/json` or `application/x-www-form-urlencoded`
-* **Auth Required:** No
-
-#### Request Payload:
+#### Access Denied Response (`HTTP 403` - Delinquent / Suspended):
 ```json
 {
-  "full_name": "Tariq Malik",
-  "email": "tariq.malik@example.com",
-  "phone": "+92 301 5551234",
-  "program": "HIIT Conditioning",
-  "message": "I would like to inquire about evening batch timings and personal trainer availability."
+  "success": false,
+  "access": "denied",
+  "member": {
+    "id": 99,
+    "fullName": "Expired Athlete",
+    "memberCode": "2026-99",
+    "status": "suspended",
+    "avatar": null
+  },
+  "message": "Access Denied: Membership status is SUSPENDED. Visit front desk."
 }
 ```
 
-#### Example Success Response (HTTP 200):
+#### Unknown Member Code (`HTTP 404`):
 ```json
 {
-  "status": "success",
-  "message": "Thank you for reaching out! Our Gym Flow fitness advisors will contact you shortly."
-}
-```
-
-#### Example Error Response (HTTP 400):
-```json
-{
-  "status": "error",
-  "message": "Please provide full name, email, and message."
+  "success": false,
+  "access": "denied",
+  "memberCode": "INVALID-99",
+  "message": "Unknown member code \"INVALID-99\". Not registered in system."
 }
 ```
 
 ---
 
-## 3. Newsletter Subscription API (`/api/subscribe.php`)
+### 2.2 POST /api/attendance
 
-Handles prospect email subscription to updates and fitness promotions.
+Used by physical USB barcode scanner guns, turnstile relay controllers, and kiosk devices.
 
-* **Endpoint:** `POST /api/subscribe.php`
+* **Method:** `POST`
+* **URL:** `/api/attendance`
 * **Headers:** `Content-Type: application/json`
-* **Auth Required:** No
 
 #### Request Payload:
 ```json
 {
-  "email": "member.prospect@gmail.com"
+  "memberCode": "2026-4",
+  "entryType": "qr_scanner"
 }
 ```
 
-#### Example Response (HTTP 200):
-```json
-{
-  "status": "success",
-  "message": "Welcome to Gym Flow! You've successfully subscribed to our VIP updates and workout tips."
-}
-```
+#### Field Specifications:
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `memberCode` | `string` | **Yes** | Scanned text, QR URL, or raw member code |
+| `entryType` | `string` | No | `qr_scanner`, `optical_cam`, or `manual` (Default: `qr_scanner`) |
 
----
-
-## 4. Mobile App Internal API (`/app/api.php`)
-
-Protected endpoints used by the Progressive Web App (PWA) client interface.
-
-### 4.1 Turnstile / Daily Check-in
-Records daily member attendance via the mobile interface.
-
-* **Endpoint:** `POST /app/api.php?action=check_in`
-* **Auth Required:** Yes (Active member session cookie)
-
-#### Example Success Response (First Check-in Today):
+#### Successful Response (`HTTP 200`):
 ```json
 {
   "success": true,
-  "message": "Turnstile Gate Access Granted! Check-in recorded.",
-  "status": "granted",
-  "time": "03:15 PM"
+  "access": "granted",
+  "timestamp": "2026-03-09T18:45:00.000Z",
+  "member": {
+    "id": 4,
+    "fullName": "Moeez Ahmad",
+    "memberCode": "2026-4",
+    "status": "active",
+    "planName": "3-Month Pro Athlete Plan"
+  },
+  "message": "Welcome, Moeez Ahmad! Turnstile gate unlocked."
 }
 ```
 
-#### Example Response (Already Checked In Today):
+---
+
+### 2.3 Smart Member Code Normalizer
+
+The route handler includes an automated normalizer (`cleanMemberCode`) allowing it to parse any QR format effortlessly:
+* **Raw Member ID:** `"2026-4"` $\rightarrow$ `"2026-4"`
+* **Full Verification URL:** `"http://localhost:3000/scan?code=2026-4"` $\rightarrow$ `"2026-4"`
+* **Structured Payload Token:** `"GYMFLOW:PASS:2026-4"` $\rightarrow$ `"2026-4"`
+* **Encoded URI Components:** `"2026%2D4"` $\rightarrow$ `"2026-4"`
+
+This ensures physical 2D barcode scanner guns, camera frame decoders, and direct smartphone cameras all succeed reliably.
+
+---
+
+## 3. Automated Billing Cron Worker (`/api/cron/payment-reminders`)
+
+Located at `src/app/api/cron/payment-reminders/route.ts`. Executes daily at 08:00 AM UTC via Vercel Cron.
+
+* **Method:** `GET`
+* **URL:** `/api/cron/payment-reminders`
+* **Headers:** `Authorization: Bearer <CRON_SECRET>`
+
+#### Action Lifecycle:
+1. Queries Neon PostgreSQL for subscriptions with renewal dates on the upcoming **10th of the month**.
+2. Identifies accounts past the 10th cutoff with unrecorded payments.
+3. Automatically locks gate clearance for delinquent accounts in the `attendance` validator.
+4. Generates formatted WhatsApp reminder payloads for automated notification dispatch.
+
+#### Successful Response (`HTTP 200`):
 ```json
 {
   "success": true,
-  "already_checked": true,
-  "message": "You are already checked in today at 03:15 PM",
-  "time": "03:15 PM"
+  "timestamp": "2026-03-09T08:00:00.000Z",
+  "accountsChecked": 142,
+  "upcomingCutoffNotices": 14,
+  "delinquentLockoutsEnforced": 3,
+  "message": "Daily 10th-cutoff billing worker completed successfully."
 }
 ```
 
 ---
 
-### 4.2 Direct Coach Consultation
-Submits a direct question to the coaching staff from the mobile dashboard.
+## 4. HTTP Status Codes & Error Formats
 
-* **Endpoint:** `POST /app/api.php?action=send_coach_message`
-* **Auth Required:** Yes (Active member session cookie)
-
-#### Request Payload:
-```x-www-form-urlencoded
-message=Could Coach Marcus adjust my deadlift form routine for this week?
-```
-
-#### Example Response:
-```json
-{
-  "success": true,
-  "message": "Your message has been sent directly to Coach Marcus & Front Desk! We will respond shortly."
-}
-```
-
----
-
-## 5. Automated Cron Webhook (`/cron/payment_reminders.php`)
-
-Executes the automated notification scanner over HTTP or CLI.
-
-* **Endpoint:** `GET /cron/payment_reminders.php?token=GYMFLOW_CRON_SECRET`
-* **Auth Required:** Webhook secret token check (`token=GYMFLOW_CRON_SECRET`)
-
-#### Example Response:
-```json
-{
-  "status": "success",
-  "timestamp": "2026-10-11 15:00:00",
-  "scan_date": "2026-10-11",
-  "total_sent": 2,
-  "duration_sec": 0.0421,
-  "details": [
-    {
-      "user_id": 3,
-      "member": "Alex Johnson",
-      "phone": "+923001234569",
-      "amount": 8000,
-      "due_date": "2026-10-11",
-      "is_overdue": false,
-      "channels": {
-        "sms": "sent",
-        "whatsapp": "sent"
-      }
-    }
-  ]
-}
-```
-
----
-
-## 6. Error Handling & HTTP Status Codes
-
-| HTTP Status | Meaning | Typical Trigger |
+| Status Code | Reason | Meaning |
 | :--- | :--- | :--- |
-| `200 OK` | Success | Valid request processed successfully |
-| `400 Bad Request` | Validation Error | Missing mandatory fields (name, email, message) |
-| `401 Unauthorized` | Unauthenticated | Mobile action attempted without an active login |
-| `403 Forbidden` | Access Denied | Invalid webhook secret token on cron endpoint |
-| `405 Method Not Allowed` | Method Mismatch | GET request sent to a POST-only endpoint |
-| `500 Server Error` | Database or Runtime Error | Database failure or unhandled exception |
+| **`200 OK`** | Success | Request succeeded; turnstile access granted or data retrieved |
+| **`400 Bad Request`** | Validation Error | Member code was omitted or invalid payload format |
+| **`403 Forbidden`** | Access Denied | Member account is `inactive`, `suspended`, or past 10th cutoff |
+| **`404 Not Found`** | Unknown Member | Scanned code does not exist in Neon PostgreSQL |
+| **`500 Internal Error`** | Server Error | Database connection timeout or unexpected runtime exception |
+
+#### Standardized Error Envelope:
+```json
+{
+  "success": false,
+  "access": "denied",
+  "message": "Human-readable explanation of error or denial reason."
+}
+```

@@ -1,34 +1,35 @@
 # GymFlow &mdash; Modern Gym & Fitness Management Platform
 
 <p align="center">
-  <img src="assets/images/favicon.svg" alt="GymFlow Logo" width="96" height="96" />
+  <img src="public/images/logo.png" alt="GymFlow Logo" width="220" />
 </p>
 
 <p align="center">
-  <strong>Elevate Your Strength & Peak Performance</strong><br>
-  A comprehensive, high-performance gym management ecosystem featuring public marketing, member self-service portals, administrative billing & CRM, and an installable Progressive Web App (PWA).
+  <strong>The Intelligent Brain for Your Gym &bull; Intelligence-as-a-Service (IaaS)</strong><br>
+  A comprehensive, high-performance gym management ecosystem featuring public marketing, 4-step online admission, member self-service portals, administrative billing & CRM, a standalone Progressive Web App (PWA), and a real optical camera turnstile verifier.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/PHP-8.0%2B-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP 8+" />
-  <img src="https://img.shields.io/badge/MySQL-InnoDB-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" />
-  <img src="https://img.shields.io/badge/TailwindCSS-v3.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="Progressive Web App" />
-  <img src="https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge" alt="License" />
+  <img src="https://img.shields.io/badge/Next.js-15_(App_Router)-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js 15" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19" />
+  <img src="https://img.shields.io/badge/Neon-Serverless_Postgres-00E599?style=for-the-badge&logo=postgresql&logoColor=black" alt="Neon Postgres" />
+  <img src="https://img.shields.io/badge/Drizzle_ORM-Type--Safe-C5F74F?style=for-the-badge&logo=drizzle&logoColor=black" alt="Drizzle ORM" />
+  <img src="https://img.shields.io/badge/Vercel-100%25_Free_Tier-black?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Free" />
+  <img src="https://img.shields.io/badge/PWA-Installable-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
 </p>
 
 ---
 
 ## 📌 Table of Contents
 1. [Overview](#-overview)
-2. [Key Capabilities & Modules](#-key-capabilities--modules)
-3. [Technology Stack](#-technology-stack)
+2. [Key Capabilities & Subsystems](#-key-capabilities--subsystems)
+3. [Technology Stack (100% Free Serverless Architecture)](#-technology-stack-100-free-serverless-architecture)
 4. [Quick Start (Local Development)](#-quick-start-local-development)
-5. [Default Login Credentials](#-default-login-credentials)
+5. [Default Login Credentials & Testing IDs](#-default-login-credentials--testing-ids)
 6. [Repository Structure](#-repository-structure)
 7. [Comprehensive Documentation Index](#-comprehensive-documentation-index)
-8. [Automated Background Reminders](#-automated-background-reminders)
-9. [License & Acknowledgments](#-license--acknowledgments)
+8. [Automated Background Reminders & Cron](#-automated-background-reminders--cron)
+9. [Hardware & Turnstile Testing Guide](#-hardware--turnstile-testing-guide)
 
 ---
 
@@ -36,107 +37,114 @@
 
 **GymFlow** is an all-in-one software solution engineered for commercial gyms, private fitness studios, and health clubs. It eliminates disparate spreadsheets and fragmented software by consolidating:
 
-* **Public Marketing Site:** Responsive showcase for fitness programs, facility amenities, membership pricing in PKR, and prospective inquiries.
-* **Member Self-Service Portal (`/user`):** Real-time membership passes, streak tracking, turnstile access QR codes, and personal billing history.
-* **Progressive Web App (`/app`):** Installable mobile-first web app with offline capabilities, direct coach communication, and one-tap WhatsApp integration.
+* **Public Marketing Site (`/`):** High-converting showroom with athletic branding, facilities, programs, and transparent PKR pricing (₨ 8,500 / ₨ 22,500 / ₨ 42,000).
+* **4-Step Online Admission Wizard (`/admission`):** Athlete onboarding with PAR-Q medical screening, shift allocation, fee calculation, and printable voucher slip.
+* **Standalone Progressive Web App (`/app`):** Installable mobile-first web app with 5 native tabs (matching `Group 2.png` Row 4), offline 2D QR pass, consistency streaks, and direct WhatsApp coach bridge.
+* **Member Self-Service Portal (`/user`):** Desktop athlete dashboard with attendance history, streak engine, and digital invoice ledger.
+* **Live Optical Camera Turnstile Verifier (`/scan`):** Zero-hardware turnstile gate verification running in any browser with real-time video decoding, Web Audio API sound chimes, and USB barcode wedge listener.
 * **Administrative Operations Console (`/admin`):** Real-time financial analytics, 10th-cutoff monthly billing workflows, member lifecycle management, package CRUD builder, and inquiries inbox.
 
 ---
 
-## ⚡ Key Capabilities & Modules
+## ⚡ Key Capabilities & Subsystems
 
-### 1. Public Marketing Portal
-* **Programs & Facilities:** Highlight HIIT, bodybuilding, Olympic lifting zones, Finnish saunas, and cold plunge recovery.
-* **Transparent Pricing in PKR:** Dynamic tiers pulled from MySQL with highlighted "Most Popular" badges.
-* **Prospect Lead Capture:** Contact forms and newsletter subscriptions connected to the administrative CRM.
+### 1. Public Marketing Portal (`/`, `/about`, `/programs`, `/facilities`, `/pricing`, `/contact`)
+* **The Intelligent Brain for Your Gym:** Split device mockup showcasing the Admin Cockpit and glowing Smartphone PWA Pass.
+* **Real-Time Operational Counters:** Sub-second check-in (`< 1s`), mobile app attendance visibility (`100%`), zero paper logbooks (`0`), and 24/7 cloud gate management.
+* **Transparent Pricing in PKR:** Standardized plans (₨ 8,500 / ₨ 22,500 / ₨ 42,000) with strict 10th-cutoff policy FAQ.
 
-### 2. Member Portal (`/user`)
-* **Digital Turnstile Pass:** Dynamic QR pass and Member Code (e.g., `2026-4`) for entry.
-* **Consistency Streak Engine:** Tracks consecutive daily workouts and logs monthly gym visits.
-* **Fee Status & Receipts:** Instant visibility into paid invoices and upcoming renewals.
+### 2. 4-Step Online Admission Wizard (`/admission`)
+* Complete digital onboarding collecting CNIC, blood group, PAR-Q medical screening, workout shifts, and local payment methods (EasyPaisa, JazzCash, Cash).
+* Issues immediate allocated Member ID with real scannable 2D QR matrix and printable confirmation voucher.
 
-### 3. Mobile Progressive Web App (`/app`)
-* **Installable Native Feel:** Works offline and installs directly to Android and iOS home screens via `manifest.json` and `sw.js`.
-* **Coach Marcus & Front Desk Chat:** Topic-oriented inquiry dispatch with automated WhatsApp deep links.
+### 3. Standalone Mobile Progressive Web App (`/app`)
+* Dedicated mobile UI with 5 native tabs: Home, Alerts, Pass, Invoices, and Profile.
+* Level H 2D QR Code generator with retina 2x rendering, offline cache, and PNG download.
+* Consistency Streak Engine ("🔥 14-Day Streak • 18 Visits") to slash member churn.
 
-### 4. Administrative Control Suite (`/admin`)
-* **KPI Metrics Dashboard:** Revenue metrics, active member tallies, and upcoming expiration warnings.
-* **Member Directory & Quick Actions:** Search and filter members, edit subscriptions, or use the "Mark as Paid" modal.
-* **Cutoff Billing Schedule:** Enforces standard monthly 10th-cutoff fee schedules with audit ledgers for cash, cards, JazzCash, and EasyPaisa.
-* **Dynamic Plan Builder:** Configure plans, pricing in PKR, durations, and JSON-based feature bullets directly from the UI.
-* **Message Inquiries Center:** Process and resolve incoming customer contacts and coaching requests.
+### 4. Live Optical Camera Turnstile Scanner (`/scan`)
+* Instant webcam and mobile camera scanning powered by `jsQR`.
+* Offline Web Audio API sound synthesizers (pleasant two-tone success chime, warning buzzer).
+* Physical USB barcode scanner gun keyboard wedge listener.
+* Visual turnstile gate open/lock indicator with athlete dossier and real-time scan session stream.
+
+### 5. Administrative Control Suite (`/admin`)
+* **KPI Metrics Dashboard:** Revenue metrics, today's check-ins, floor occupancy gauge, and live scan stream.
+* **New Admissions Manager (`/admin/admissions`):** Review athlete dossiers, verify PAR-Q medical disclosures, approve/reject, and dispatch WhatsApp welcomes.
+* **Member Directory & Quick Actions (`/admin/members`):** Search by Name, Phone, CNIC, or Code (`2026-4`), with gate clearance toggle.
+* **Cutoff Billing Schedule (`/admin/billing`):** Enforces 10th-cutoff fee schedules with audit ledgers for cash, cards, JazzCash, and EasyPaisa.
+* **Dynamic Plan Builder (`/admin/plans`):** Configure plans, pricing in PKR, durations, and feature bullet lists.
 
 ---
 
-## 🛠 Technology Stack
+## 🛠 Technology Stack: 100% Free Serverless Architecture
 
-* **Backend:** Native PHP 8.0+ (No heavy third-party framework overhead, blazing fast execution).
-* **Database:** MySQL 5.7+ / MariaDB 10.3+ (InnoDB with strict foreign key constraints and indexed queries).
-* **Styling & UI:** Tailwind CSS, custom glassmorphism design tokens (`assets/css/style.css`), Font Awesome 6.5.1, and Google Fonts (`Teko` & `Plus Jakarta Sans`).
-* **Mobile / PWA:** Service Worker caching (`sw.js`) and Web App Manifest (`manifest.json`).
-* **Architecture:** Modular Monolithic MVC pattern with Singleton PDO database abstraction and tokenized CSRF security.
+* **Framework & App Shell:** **Next.js 15 (App Router)** with React 19 &bull; **No separate backend server required**.
+* **Database:** **Neon Serverless PostgreSQL** with built-in connection pooling (`ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech`).
+* **Database ORM:** **Drizzle ORM** (Fastest serverless cold-starts, modular schema in `database/schema/`).
+* **Hosting & CDN:** **Vercel Hobby Tier** ($0/month with unlimited serverless executions and free SSL).
+* **QR Engine:** **`qrcode`** (Level H error correction, 2x retina rendering, downloadable PNG).
+* **Frame Decoder:** **`jsqr`** (Client-side camera canvas scanning for turnstile kiosks).
+* **Sound Synthesizer:** **HTML5 Web Audio API** (Offline, zero-latency dual-tone chimes).
+* **Styling & UI:** Tailwind CSS, dark obsidian athletic tokens, and Google Fonts (`Teko` & `Plus Jakarta Sans`).
+* **Mobile / PWA:** Service Worker caching (`public/sw.js`) and Web App Manifest (`public/manifest.json`).
 
 ---
 
 ## 🏃 Quick Start (Local Development)
 
 ### Prerequisites
-* PHP 8.0+ (`pdo_mysql`, `mbstring`, `json`, `openssl`, `session` extensions enabled)
-* MySQL / MariaDB Server
+* **Node.js:** v18.18+ or v20+ / v22+ / v24+ LTS
+* **Neon PostgreSQL Database:** Free account at [neon.tech](https://neon.tech/)
 
 ### Step-by-Step Installation
 
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/moeezahmad-tech/gymflow.git
-   cd gymflow
+   cd "GYM management system"
    ```
 
-2. **Configure Environment Variables:**
+2. **Install Node.js Dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Environment Variables:**
    Copy `.env.example` to `.env`:
    ```bash
    cp .env.example .env
    ```
-   Open `.env` and configure your local database credentials:
+   Ensure your `.env` contains:
    ```ini
-   GYMFLOW_DB_HOST=127.0.0.1
-   GYMFLOW_DB_PORT=3306
-   GYMFLOW_DB_NAME=gym_flow
-   GYMFLOW_DB_USERNAME=root
-   GYMFLOW_DB_PASSWORD=
+   DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+   DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
    ```
 
-3. **Import Database Schema:**
-   Import the schema and seed data into your MySQL server:
+4. **Start the Development Server:**
    ```bash
-   mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS gym_flow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-   mysql -u root -p gym_flow < schema.sql
+   npm run dev
    ```
+   Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-4. **Launch the Development Server:**
-   Start the PHP built-in server with the bundled router emulator:
+5. **Verify Production Build:**
    ```bash
-   php -S localhost:8080 router.php
+   npm run build
    ```
-
-5. **Visit GymFlow in your Browser:**
-   * **Public Website:** [http://localhost:8080/](http://localhost:8080/)
-   * **Admin Dashboard:** [http://localhost:8080/admin/](http://localhost:8080/admin/)
-   * **Member Portal:** [http://localhost:8080/user/](http://localhost:8080/user/)
-   * **Mobile Web App:** [http://localhost:8080/app/](http://localhost:8080/app/)
+   Validates all 25 routes with zero errors.
 
 ---
 
-## 🔐 Default Login Credentials
+## 🔐 Default Login Credentials & Testing IDs
 
-The initial database seed provides pre-configured verified credentials:
+The Neon PostgreSQL database includes pre-seeded accounts:
 
-| Role | Email | Password | Access Area |
-| :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@gymflow.com` | `Admin123!` | `/admin/` (Full Administrative Suite) |
-| **Staff / Coach** | `staff@gymflow.com` | `Staff123!` | `/admin/` (Front Desk & Member CRM) |
-| **Active Member** | `member@gymflow.com` | `Member123!` | `/user/` and `/app/` (Member Dashboard) |
-| **Active Member** | `moeezahmad.tech@gmail.com` | `password123` | `/user/` and `/app/` (Member Dashboard) |
+| Role | Member ID | Name | Email | Password | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Director / Admin** | `2026-1` | Admin Director | `admin@gymflow.com` | `admin123` | `active` |
+| **Front Desk Staff** | `2026-2` | Front Desk Staff | `staff@gymflow.com` | `staff123` | `active` |
+| **Active Athlete** | `2026-3` | Active Athlete | `athlete@gymflow.com` | `athlete123` | `active` |
+| **VIP Athlete** | `2026-4` | Moeez Ahmad | `moeezahmad.tech@gmail.com` | `athlete123` | `active` |
 
 ---
 
@@ -144,64 +152,107 @@ The initial database seed provides pre-configured verified credentials:
 
 ```
 GYM management system/
-├── admin/               # Administrative suite (dashboard, members, billing, plans)
-├── api/                 # REST API gateway endpoints (plans, status, newsletter)
-├── app/                 # Standalone Mobile Progressive Web App (PWA)
-├── assets/              # Static styling (CSS, JavaScript, brand images, icons)
-├── components/          # Reusable UI partials (header, footer, admin sidebar)
-├── config/              # Core configurations (app, database PDO, auth, notifications)
-├── cron/                # Automated CLI/webhook payment reminder scripts
-├── docs/                # Comprehensive technical documentation
-├── scripts/             # Database seeder and maintenance scripts
-├── user/                # Member self-service portal
-├── index.php            # Public landing page
-├── router.php           # Built-in PHP server router (.htaccess emulator)
-├── schema.sql           # Complete MySQL database schema & seed data
-├── manifest.json        # PWA application manifest
-└── sw.js                # Service Worker for offline app shell
+├── public/                      # Static assets, branding & PWA configuration
+│   ├── images/                  # Authentic gym photography & official logo.png
+│   ├── manifest.json            # PWA manifest definition (start_url: "/app")
+│   └── sw.js                    # Service worker for offline shell caching
+│
+├── database/                    # Modular Drizzle ORM Database Architecture
+│   ├── index.ts                 # Database client initialization with Neon driver
+│   └── schema/                  # Modular PostgreSQL schema definitions
+│       ├── users.ts             # Users, roles (admin/staff/member), status
+│       ├── plans.ts             # Packages, pricing in PKR, duration
+│       ├── subscriptions.ts     # Active subscriptions & 10th cutoff dates
+│       ├── payments.ts          # Ledger invoices, payment channels
+│       ├── attendance.ts        # Turnstile scan logs, gate access status
+│       ├── notifications.ts     # System alerts and WhatsApp reminder logs
+│       ├── messages.ts          # Lead capture inquiries and contact messages
+│       ├── newsletter.ts        # Newsletter subscribers and campaigns
+│       └── index.ts             # Schema relations & exports
+│
+├── src/
+│   ├── components/              # Shared Reusable Components
+│   │   ├── public-header.tsx    # Header with branding & portal quick-links
+│   │   ├── public-footer.tsx    # Footer with operating hours & social links
+│   │   ├── admin-sidebar.tsx    # Dark obsidian admin navigation sidebar
+│   │   ├── real-qr-code.tsx     # High-contrast 2D QR matrix generator with PNG save
+│   │   └── pwa-register.tsx     # Client component registering Service Worker
+│   │
+│   └── app/                     # Next.js App Router (25 Validated Routes)
+│       ├── page.tsx             # Public marketing landing page (IaaS showcase)
+│       ├── admission/           # 4-step public online admission intake wizard
+│       ├── app/                 # Standalone Member Mobile PWA (5 Tabs)
+│       ├── user/                # Desktop Member Dashboard & Turnstile Pass
+│       ├── scan/                # Live Optical Camera & Barcode Turnstile Scanner
+│       ├── admin/               # Executive Admin Management Suite
+│       │   ├── page.tsx         # Central Dashboard & Live Stream
+│       │   ├── admissions/      # Pending admission applications & dossier review
+│       │   ├── members/         # Member directory & turnstile lock toggle
+│       │   ├── members-add/     # Fast 3-step member registration with QR pass
+│       │   ├── billing/         # 10th-cutoff payment ledgers, multi-channel audit
+│       │   ├── attendance/      # Live scan stream, desk manual override bar
+│       │   ├── plans/           # Membership package builder and pricing CRUD
+│       │   └── messages/        # Customer inquiry inbox and WhatsApp actions
+│       └── api/                 # Serverless Route Handlers
+│           ├── attendance/      # GET & POST turnstile verification and logging
+│           └── cron/            # Scheduled 10th-cutoff payment reminder worker
+│
+└── docs/                        # Complete technical and design documentation
 ```
 
 ---
 
 ## 📚 Comprehensive Documentation Index
 
-Explore the complete product breakdown, architecture, and technical documentation located in [`docs/`](file:///e:/Coding/GYM%20management%20system/docs/):
+All technical, architectural, and operational manuals are consolidated inside the [`docs/`](file:///e:/Coding/GYM%20management%20system/docs/) directory:
 
-* 🚀 **[Product Core System Specification (`docs/PRODUCT_CORE_SYSTEM_SPEC.md`)](file:///e:/Coding/GYM%20management%20system/docs/PRODUCT_CORE_SYSTEM_SPEC.md)**: Master blueprint detailing the IaaS product scope, roadmap (Phase 1 vs. Phase 2), remote biometrics & QR strategy, framework recommendations, and current system specs.
-* 🌐 **[Website Landing Page Overview (`docs/WEBSITE_LANDING_OVERVIEW.md`)](file:///e:/Coding/GYM%20management%20system/docs/WEBSITE_LANDING_OVERVIEW.md)**: Marketing positioning, visual layout blueprint, and AI landing page redesign prompt.
-* 🎨 **[Design System & Style Guide (`docs/design.md`)](file:///e:/Coding/GYM%20management%20system/docs/design.md)**: Color tokens, typography (`Teko` & `Plus Jakarta Sans`), glassmorphism UI patterns, mobile PWA navigation, and status badges.
-* 🌟 **[Gym Management Portal & Specification (`docs/GYM_MANAGEMENT_PORTAL.md`)](file:///e:/Coding/GYM%20management%20system/docs/GYM_MANAGEMENT_PORTAL.md)**: Master document detailing what this product does, all core features, and system capabilities.
-* 📖 **[Features Specification (`docs/features.md`)](file:///e:/Coding/GYM%20management%20system/docs/features.md)**: Exhaustive breakdown of public web features, member portal, mobile PWA, administrative billing, CRM, and security matrices.
-* ⚙️ **[System & Technical Requirements (`docs/requirements.md`)](file:///e:/Coding/GYM%20management%20system/docs/requirements.md)**: PHP versions, required extensions, web server configs (Apache/Nginx/PHP CLI), and hardware sizing.
-* 🏛️ **[System Architecture (`docs/architecture.md`)](file:///e:/Coding/GYM%20management%20system/docs/architecture.md)**: Architectural diagrams (Mermaid), URL routing mechanics, RBAC layer, and notification pipeline.
-* 🗄️ **[Database Dictionary & ERD (`docs/database.md`)](file:///e:/Coding/GYM%20management%20system/docs/database.md)**: Complete 9-table schema dictionary, Mermaid ERD, column data types, foreign keys, and indexes.
-* 🔌 **[RESTful API Reference (`docs/api.md`)](file:///e:/Coding/GYM%20management%20system/docs/api.md)**: JSON endpoint contracts, query parameters, request payloads, and status codes.
-* 📦 **[Installation & Deployment Manual (`docs/installation-guide.md`)](file:///e:/Coding/GYM%20management%20system/docs/installation-guide.md)**: Production deployment instructions for cPanel, VPS, Apache, Nginx, SSL setup, and troubleshooting.
-
----
-
-## ⏰ Automated Background Reminders
-
-GymFlow features an automated notification scanner that detects upcoming and overdue payments:
-
-### Running via CLI:
-```bash
-php cron/payment_reminders.php
-```
-
-### Running via Automated Crontab:
-```cron
-0 8 * * * /usr/bin/php /path/to/gymflow/cron/payment_reminders.php >> /path/to/gymflow/cron/cron.log 2>&1
-```
-
-### Running via Webhook / External Cron Service:
-```
-GET https://yourdomain.com/cron/payment_reminders.php?token=GYMFLOW_CRON_SECRET
-```
+| Document | Primary Focus |
+| :--- | :--- |
+| **[`docs/architecture.md`](file:///e:/Coding/GYM%20management%20system/docs/architecture.md)** | Full-stack serverless architecture, Next.js routing, Drizzle ORM data flow, and turnstile mechanics. |
+| **[`docs/database.md`](file:///e:/Coding/GYM%20management%20system/docs/database.md)** | Modular Drizzle schema data dictionary, ERD diagrams, 10th-cutoff state machine, and Neon connection strings. |
+| **[`docs/installation-guide.md`](file:///e:/Coding/GYM%20management%20system/docs/installation-guide.md)**| Local quickstart, environment configuration, Vercel zero-cost deployment, and hardware turnstile testing. |
+| **[`docs/api.md`](file:///e:/Coding/GYM%20management%20system/docs/api.md)** | Serverless route handlers (`/api/attendance`, `/api/cron/*`), request/response JSON schemas, and smart normalizer. |
+| **[`docs/features.md`](file:///e:/Coding/GYM%20management%20system/docs/features.md)** | Complete breakdown of public showroom, online admissions, PWA mobile app, and admin operations. |
+| **[`docs/design.md`](file:///e:/Coding/GYM%20management%20system/docs/design.md)** | Visual design system, dark obsidian color tokens, `Teko` & `Plus Jakarta Sans` typography, and glassmorphism. |
+| **[`docs/PRODUCT_CORE_SYSTEM_SPEC.md`](file:///e:/Coding/GYM%20management%20system/docs/PRODUCT_CORE_SYSTEM_SPEC.md)** | IaaS operating philosophy, remote biometrics strategy, and phased product roadmap. |
+| **[`docs/PRODUCT_OVERVIEW.md`](file:///e:/Coding/GYM%20management%20system/docs/PRODUCT_OVERVIEW.md)** | Product identity, commercial value proposition, buyer personas, and 18-screen visual inventory. |
+| **[`docs/WEBSITE_LANDING_OVERVIEW.md`](file:///e:/Coding/GYM%20management%20system/docs/WEBSITE_LANDING_OVERVIEW.md)** | Public landing page conversion architecture, split device mockup, and social proof counters. |
 
 ---
 
-## 📄 License & Acknowledgments
+## ⏰ Automated Background Reminders & Cron
 
-* **GymFlow** &copy; 2026. All rights reserved.
-* Built with modern PHP, Tailwind CSS, Font Awesome, and love for peak athletic performance.
+GymFlow includes a scheduled billing reminder worker at `/api/cron/payment-reminders`.
+
+In `vercel.json`:
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/payment-reminders",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}
+```
+Vercel automatically triggers this endpoint daily at 08:00 AM UTC. It checks for subscriptions nearing the **10th-of-the-month cutoff**, identifies overdue accounts, and logs WhatsApp notification payloads.
+
+---
+
+## 🎯 Hardware & Turnstile Testing Guide
+
+### A. Testing on Smartphone (iOS Camera / Android Google Lens)
+1. Open [`http://localhost:3000/app`](http://localhost:3000/app) on a computer or tablet.
+2. Go to the **Pass** tab to display the real 2D QR matrix for `2026-4`.
+3. Point your smartphone camera at the screen.
+4. Tap the detected URL pop-up it opens the `/scan` verification page, plays the audio chime, and unlocks the turnstile gate HUD.
+
+### B. Testing with Reception Webcam / Optical Scanner
+1. Open [`http://localhost:3000/scan`](http://localhost:3000/scan).
+2. Click **Start Camera** to activate the webcam or mobile rear camera.
+3. Aim the camera at any athlete pass it decodes the frame in milliseconds, unlatches the gate relay, and logs the attendance entry to Neon DB.
+
+### C. Testing with Physical USB Barcode Scanner Gun
+1. Plug any 2D USB barcode scanner gun into your computer.
+2. Open [`http://localhost:3000/scan`](http://localhost:3000/scan) or [`http://localhost:3000/admin/attendance`](http://localhost:3000/admin/attendance).
+3. Scan the QR code. The built-in keyboard wedge listener captures the keystrokes and processes the check-in immediately.

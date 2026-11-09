@@ -1,244 +1,208 @@
 # GymFlow &mdash; Installation & Deployment Guide
 
-This guide walks you through setting up GymFlow in both local development environments and production hosting servers.
+This guide walks you through setting up GymFlow in both local development environments and production hosting servers using the modern **Next.js 15 + Neon Serverless PostgreSQL** stack.
 
 ---
 
 ## Table of Contents
 1. [Prerequisites](#1-prerequisites)
-2. [Local Development Setup](#2-local-development-setup)
-   - [Method A: Standalone PHP CLI & MySQL (Recommended)](#method-a-standalone-php-cli--mysql-recommended)
-   - [Method B: XAMPP / Laragon / WampServer](#method-b-xampp--laragon--wampserver)
+2. [Local Development Setup (Blazing Fast)](#2-local-development-setup-blazing-fast)
 3. [Environment Configuration (`.env`)](#3-environment-configuration-env)
-4. [Database Initialization & Seeding](#4-database-initialization--seeding)
-5. [Production Deployment Guide](#5-production-deployment-guide)
-   - [cPanel / StackCP / Shared Hosting](#cpanel--stackcp--shared-hosting)
-   - [Virtual Private Server (VPS / Ubuntu / Nginx)](#virtual-private-server-vps--ubuntu--nginx)
-   - [Enabling HTTPS for PWA Compliance](#enabling-https-for-pwa-compliance)
+4. [Database Initialization & Drizzle Migrations](#4-database-initialization--drizzle-migrations)
+5. [Production Deployment to Vercel (100% Free Approach)](#5-production-deployment-to-vercel-100-free-approach)
 6. [Automating Scheduled Cron Reminders](#6-automating-scheduled-cron-reminders)
-7. [Default Test Credentials](#7-default-test-credentials)
-8. [Troubleshooting Guide](#8-troubleshooting-guide)
+7. [Default Seed Credentials & Testing Accounts](#7-default-seed-credentials--testing-accounts)
+8. [Turnstile & Hardware Testing Guide](#8-turnstile--hardware-testing-guide)
+9. [Troubleshooting Common Issues](#9-troubleshooting-common-issues)
 
 ---
 
 ## 1. Prerequisites
 
-Before installing, ensure your machine or server has:
-* **PHP 8.0+** (PHP 8.1 or 8.2 recommended)
-* **MySQL 5.7+** or **MariaDB 10.3+**
-* Enabled PHP extensions: `pdo_mysql`, `mbstring`, `json`, `openssl`, `session`
-* Web server: Apache (with `mod_rewrite`), Nginx, or the native PHP CLI server.
+Before installing, ensure your development machine has:
+* **Node.js:** v18.18+ or v20+ / v22+ / v24+ (Recommended: LTS)
+* **Package Manager:** `npm` (comes with Node), `yarn`, or `pnpm`
+* **Git:** Installed and configured
+* **Neon PostgreSQL Database:** Free serverless account at [neon.tech](https://neon.tech/)
 
 ---
 
-## 2. Local Development Setup
+## 2. Local Development Setup (Blazing Fast)
 
-### Method A: Standalone PHP CLI & MySQL (Recommended)
+Boot up the entire stack locally in less than 2 minutes:
 
-This method requires no bulky server suites and boots up in seconds.
+### Step 1: Clone or Open the Repository
+```bash
+git clone https://github.com/moeezahmad-tech/gymflow.git
+cd "GYM management system"
+```
 
-1. **Clone or Download the Repository:**
-   ```bash
-   git clone https://github.com/moeezahmad-tech/gymflow.git
-   cd gymflow
-   ```
+### Step 2: Install Node Dependencies
+```bash
+npm install
+```
+This installs Next.js 15, React 19, Drizzle ORM, `@neondatabase/serverless`, `qrcode`, `jsqr`, and Tailwind CSS.
 
-2. **Configure the Environment:**
-   Copy the example environment template:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` with your local MySQL credentials:
-   ```ini
-   GYMFLOW_DB_HOST=127.0.0.1
-   GYMFLOW_DB_PORT=3306
-   GYMFLOW_DB_NAME=gym_flow
-   GYMFLOW_DB_USERNAME=root
-   GYMFLOW_DB_PASSWORD=
-   ```
+### Step 3: Configure Your Environment File
+Create your local `.env` file from `.env.example`:
+```bash
+cp .env.example .env
+```
+Ensure your `DATABASE_URL` is set:
+```ini
+DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+```
 
-3. **Import Database Schema:**
-   Create the database and import `schema.sql`:
-   ```bash
-   mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS gym_flow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-   mysql -u root -p gym_flow < schema.sql
-   ```
-
-4. **Launch the Built-in Server with the Router:**
-   GymFlow includes a built-in router emulator (`router.php`) supporting clean, extensionless URLs:
-   ```bash
-   php -S localhost:8080 router.php
-   ```
-
-5. **Open in Browser:**
-   * Landing Page: `http://localhost:8080/`
-   * Admin Portal: `http://localhost:8080/admin/`
-   * Member Portal: `http://localhost:8080/user/`
-   * Mobile PWA: `http://localhost:8080/app/`
-
----
-
-### Method B: XAMPP / Laragon / WampServer
-
-1. **Move Project Files:**
-   Copy the `GYM management system` directory into your web server's public root:
-   * **XAMPP:** `C:\xampp\htdocs\gymflow`
-   * **Laragon:** `C:\laragon\www\gymflow`
-
-2. **Create the Database in phpMyAdmin:**
-   * Open `http://localhost/phpmyadmin`
-   * Create a new database named `gym_flow` with collation `utf8mb4_unicode_ci`.
-   * Click **Import** &rarr; Select `schema.sql` from the project folder &rarr; Click **Go**.
-
-3. **Configure `.env`:**
-   Ensure `.env` matches your XAMPP settings:
-   ```ini
-   GYMFLOW_DB_HOST=127.0.0.1
-   GYMFLOW_DB_PORT=3306
-   GYMFLOW_DB_NAME=gym_flow
-   GYMFLOW_DB_USERNAME=root
-   GYMFLOW_DB_PASSWORD=
-   ```
-
-4. **Access the Project:**
-   Navigate to `http://localhost/gymflow/` in your browser.
+### Step 4: Start the Development Server
+```bash
+npm run dev
+```
+Open your browser at **[http://localhost:3000](http://localhost:3000)**.
 
 ---
 
 ## 3. Environment Configuration (`.env`)
 
-The `.env` file should never be committed to public version control. Configure it according to your hosting target:
+GymFlow utilizes a clean, production-grade `.env` structure:
 
 ```ini
-# Database Connection Settings
-GYMFLOW_DB_HOST=127.0.0.1
-GYMFLOW_DB_PORT=3306
-GYMFLOW_DB_NAME=gym_flow
-GYMFLOW_DB_USERNAME=root
-GYMFLOW_DB_PASSWORD=your_secure_password
+# ==============================================================================
+# GymFlow Core Serverless Environment Variables
+# ==============================================================================
+
+# Application Environment
+NODE_ENV=development
+APP_NAME="GymFlow"
+APP_URL="http://localhost:3000"
+
+# Neon Serverless PostgreSQL (Pooled for Server Actions & API Routes - Port 5432)
+DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+# Direct Neon Connection (for Drizzle Migrations)
+DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+# Authentication Secret (Used to sign cookies and tokens)
+AUTH_SECRET="gymflow_secure_production_secret_key_2026_xyz"
+
+# Automated Cron Worker Security Secret
+CRON_SECRET="gymflow_cron_bearer_token_2026"
+
+# Club Contact Information (Displayed across public site & WhatsApp triggers)
+NEXT_PUBLIC_GYM_PHONE="+92 325 9491349"
+NEXT_PUBLIC_GYM_WHATSAPP="923259491349"
+NEXT_PUBLIC_GYM_ADDRESS="Plot 42-C, Commercial Sector 4, Metropolis Boulevard, Islamabad"
 ```
 
 ---
 
-## 4. Database Initialization & Seeding
+## 4. Database Initialization & Drizzle Migrations
 
-If you need to re-seed or verify default user passwords and accounts:
+The database schema is organized into clean, modular files in `database/schema/`:
+
+To push schema changes directly to your Neon PostgreSQL instance:
 ```bash
-php scripts/seed_users.php
+npx drizzle-kit push
 ```
-This utility ensures all default accounts exist, hashes passwords with fresh Bcrypt salts, and verifies member subscriptions.
+
+To inspect your database schema visually using Drizzle Studio:
+```bash
+npx drizzle-kit studio
+```
+This launches a visual database explorer on `https://local.drizzle.studio`.
 
 ---
 
-## 5. Production Deployment Guide
+## 5. Production Deployment to Vercel (100% Free Approach)
 
-### cPanel / StackCP / Shared Hosting
+Deploying to Vercel delivers zero server maintenance, global edge caching, automated SSL, and **$0.00/month** operational cost:
 
-1. **Upload Files:**
-   Upload project files to `public_html` (or a subdomain directory like `public_html/gymflow`).
-2. **Import MySQL Database:**
-   * Open cPanel **MySQL Databases** &rarr; create a new database and user &rarr; grant All Privileges.
-   * Open **phpMyAdmin** &rarr; select the database &rarr; import `schema.sql`.
-3. **Configure `.env`:**
-   In cPanel File Manager, ensure hidden files are shown. Create or edit `.env`:
-   ```ini
-   GYMFLOW_DB_HOST=localhost
-   GYMFLOW_DB_NAME=your_cpanel_dbname
-   GYMFLOW_DB_USERNAME=your_cpanel_dbuser
-   GYMFLOW_DB_PASSWORD=your_cpanel_dbpass
-   ```
-4. **Apache Verification:**
-   Ensure `mod_rewrite` is active and `.htaccess` is present in the root folder.
+### Step 1: Push Code to GitHub
+```bash
+git add .
+git commit -m "feat: complete nextjs 15 gymflow stack"
+git push origin main
+```
 
----
+### Step 2: Import Project in Vercel
+1. Log in to [vercel.com](https://vercel.com/) and click **"Add New Project"**.
+2. Select your `gymflow` repository.
+3. Framework Preset: **Next.js** (auto-detected).
+4. Add your Environment Variables:
+   - `DATABASE_URL`
+   - `DIRECT_URL`
+   - `AUTH_SECRET`
+   - `CRON_SECRET`
+5. Click **"Deploy"**.
 
-### Virtual Private Server (VPS / Ubuntu / Nginx)
-
-1. **Install PHP 8.2 and Extensions:**
-   ```bash
-   sudo apt update
-   sudo apt install -y php8.2 php8.2-fpm php8.2-mysql php8.2-mbstring php8.2-curl php8.2-xml nginx mysql-server
-   ```
-2. **Configure Nginx Server Block:**
-   ```nginx
-   server {
-       listen 80;
-       server_name gymflow.yourdomain.com;
-       root /var/www/gymflow;
-       index index.php;
-
-       location / {
-           try_files $uri $uri/ $uri.php?$args;
-       }
-
-       location ~ \.php$ {
-           include snippets/fastcgi-php.conf;
-           fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-       }
-
-       location ~ /\. {
-           deny all;
-       }
-   }
-   ```
-
----
-
-### Enabling HTTPS for PWA Compliance
-
-Progressive Web App features (such as Service Worker caching and install prompts) **require HTTPS**:
-* On VPS: Install Let's Encrypt with Certbot:
-  ```bash
-  sudo apt install -y certbot python3-certbot-nginx
-  sudo certbot --nginx -d gymflow.yourdomain.com
-  ```
-* On cPanel: Enable **AutoSSL** in the cPanel SSL/TLS Status tab.
+### Step 3: Production Build Verification
+Vercel executes `npm run build` and optimizes all 25 routes as static edge pages or serverless functions.
 
 ---
 
 ## 6. Automating Scheduled Cron Reminders
 
-To automatically trigger daily payment reminder scans and overdue notifications, configure a recurring cron job:
+GymFlow includes a scheduled billing reminder worker at `/api/cron/payment-reminders`.
 
-### Linux / cPanel Crontab
-Run `crontab -e` and add the following entry to execute daily at 8:00 AM:
-```cron
-0 8 * * * /usr/bin/php /path/to/gymflow/cron/payment_reminders.php >> /path/to/gymflow/cron/cron.log 2>&1
+In `vercel.json`:
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/payment-reminders",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}
 ```
-
-### Webhook / Cron-Job.org Alternative
-If CLI access is unavailable, configure an external cron service (like cron-job.org) to ping the secure webhook URL once daily:
-```
-GET https://gymflow.yourdomain.com/cron/payment_reminders.php?token=GYMFLOW_CRON_SECRET
-```
+Vercel automatically calls this endpoint every morning at 08:00 AM UTC. It checks for subscriptions nearing the **10th-of-the-month cutoff**, identifies overdue accounts, and logs WhatsApp notification payloads.
 
 ---
 
-## 7. Default Test Credentials
+## 7. Default Seed Credentials & Testing Accounts
 
-| Portal | Email | Password | Role |
-| :--- | :--- | :--- | :--- |
-| **Admin Console** | `admin@gymflow.com` | `Admin123!` | Administrator |
-| **Staff & Coach** | `staff@gymflow.com` | `Staff123!` | Staff / Trainer |
-| **Member Portal** | `member@gymflow.com` | `Member123!` | Member |
-| **Member Portal** | `moeezahmad.tech@gmail.com` | `password123` | Member |
+The Neon PostgreSQL database includes pre-seeded accounts for testing:
+
+| Role | Member ID | Name | Email | Password | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Director / Admin** | `2026-1` | Admin Director | `admin@gymflow.com` | `admin123` | `active` |
+| **Front Desk Staff** | `2026-2` | Front Desk Staff | `staff@gymflow.com` | `staff123` | `active` |
+| **Active Athlete** | `2026-3` | Active Athlete | `athlete@gymflow.com` | `athlete123` | `active` |
+| **VIP Athlete** | `2026-4` | Moeez Ahmad | `moeezahmad.tech@gmail.com` | `athlete123` | `active` |
 
 ---
 
-## 8. Troubleshooting Guide
+## 8. Turnstile & Hardware Testing Guide
 
-### 1. "Database Connection Notice"
-* Verify MySQL is running (`mysqladmin -u root status`).
-* Check credentials in `.env` (ensure correct host, port, db name, and user).
-* Make sure `schema.sql` has been imported into your target database.
+### A. Testing on Smartphone (iOS Camera / Android Google Lens)
+1. Open [`http://localhost:3000/app`](http://localhost:3000/app) on a computer or tablet.
+2. Go to the **Pass** tab to display the real 2D QR matrix for `2026-4`.
+3. Point your smartphone camera at the screen.
+4. Tap the detected URL pop-up it opens the `/scan` verification page, plays the audio chime, and unlocks the turnstile gate HUD.
 
-### 2. 404 Not Found on Clean URLs (`/about`, `/pricing`)
-* When using the PHP built-in server, ensure you launched it with `router.php`:
-  ```bash
-  php -S localhost:8080 router.php
+### B. Testing with Reception Webcam / Optical Scanner
+1. Open [`http://localhost:3000/scan`](http://localhost:3000/scan).
+2. Click **Start Camera** to activate the webcam or mobile rear camera.
+3. Aim the camera at any athlete pass it decodes the frame in milliseconds, unlatches the gate relay, and logs the attendance entry to Neon DB.
+
+### C. Testing with Physical USB Barcode Scanner Gun
+1. Plug any 2D USB barcode scanner gun into your computer.
+2. Open [`http://localhost:3000/scan`](http://localhost:3000/scan) or [`http://localhost:3000/admin/attendance`](http://localhost:3000/admin/attendance).
+3. Scan the QR code. The built-in keyboard wedge listener captures the keystrokes and processes the check-in immediately.
+
+---
+
+## 9. Troubleshooting Common Issues
+
+### Issue 1: "DATABASE_URL is not set"
+* **Solution:** Ensure your `.env` file exists in the project root and contains the `DATABASE_URL` key with `sslmode=require`.
+
+### Issue 2: Camera Permissions Denied in `/scan`
+* **Solution:** Webcams require either `localhost` or a valid HTTPS domain (such as Vercel) to grant camera access.
+
+### Issue 3: Stale Build Cache
+* **Solution:** Purge the `.next` directory:
+  ```powershell
+  Remove-Item -Path .next -Recurse -Force
+  npm run build
   ```
-* When using Apache, ensure `mod_rewrite` is enabled and `AllowOverride All` is set in your Apache config.
-
-### 3. CSRF Token Mismatch Error
-* Verify that browser sessions and cookies are enabled.
-* Ensure session storage directory is writable by the PHP web process.

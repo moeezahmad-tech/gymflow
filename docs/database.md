@@ -1,349 +1,264 @@
 # GymFlow &mdash; Database Schema & Data Dictionary
 
-This document provides a complete reference for the GymFlow relational database schema, table structures, column definitions, constraints, relationships, indexes, and seed datasets.
+This document provides a complete reference for the GymFlow relational database architecture hosted on **Neon Serverless PostgreSQL** and managed via **Drizzle ORM**.
 
 ---
 
 ## Table of Contents
-1. [Database Overview](#1-database-overview)
-2. [Entity-Relationship Diagram (ERD)](#2-entity-relationship-diagram-erd)
-3. [Table Data Dictionary](#3-table-data-dictionary)
-   - [users](#1-users)
-   - [membership_plans](#2-membership_plans)
-   - [memberships](#3-memberships)
-   - [payments](#4-payments)
-   - [attendance](#5-attendance)
-   - [notifications_log](#6-notifications_log)
-   - [contact_messages](#7-contact_messages)
-   - [newsletter_subscribers](#8-newsletter_subscribers)
-   - [email_campaigns](#9-email_campaigns)
-4. [Default Seed Data & User Credentials](#4-default-seed-data--user-credentials)
-5. [Status State Machines & Lifecycles](#5-status-state-machines--lifecycles)
-6. [Indexing & Query Optimization](#6-indexing--query-optimization)
+1. [Database Architecture & Serverless Specifications](#1-database-architecture--serverless-specifications)
+2. [Modular Drizzle Schema Structure](#2-modular-drizzle-schema-structure)
+3. [Entity-Relationship Diagram (ERD)](#3-entity-relationship-diagram-erd)
+4. [Table Data Dictionary](#4-table-data-dictionary)
+   - [users (`database/schema/users.ts`)](#41-users)
+   - [membership_plans (`database/schema/plans.ts`)](#42-membership_plans)
+   - [subscriptions (`database/schema/subscriptions.ts`)](#43-subscriptions)
+   - [payments (`database/schema/payments.ts`)](#44-payments)
+   - [attendance (`database/schema/attendance.ts`)](#45-attendance)
+   - [notifications_log (`database/schema/notifications.ts`)](#46-notifications_log)
+   - [contact_messages (`database/schema/messages.ts`)](#47-contact_messages)
+   - [newsletter_subscribers (`database/schema/newsletter.ts`)](#48-newsletter_subscribers)
+5. [Default Seed Data & User Credentials](#5-default-seed-data--user-credentials)
+6. [Strict 10th-Cutoff Billing Logic & State Machine](#6-strict-10th-cutoff-billing-logic--state-machine)
+7. [Connection Strings & Configuration](#7-connection-strings--configuration)
 
 ---
 
-## 1. Database Overview
+## 1. Database Architecture & Serverless Specifications
 
-* **Engine:** MySQL 5.7+ / MariaDB 10.3+ / MySQL 8.0+
-* **Storage Engine:** InnoDB (Strict ACID compliance & Foreign Key enforcement)
-* **Default Character Set:** `utf8mb4`
-* **Default Collation:** `utf8mb4_unicode_ci`
-* **Currency Standard:** Pakistani Rupee (`PKR`)
+* **Database Engine:** PostgreSQL 16 (Serverless)
+* **Provider:** [Neon](https://neon.tech/) &mdash; Scale-to-Zero serverless Postgres with instant branching and pooled connections.
+* **ORM:** **Drizzle ORM** (`drizzle-orm`, `drizzle-kit`)
+* **Driver:** `@neondatabase/serverless` with WebSocket and HTTP pipelining.
+* **Connection Pooling:** PgBouncer on port `5432`.
+* **Character Encoding:** UTF-8 (`UTF8mb4` fully supported).
+* **Currency Standard:** Pakistani Rupee (`PKR` &bull; `numeric(10, 2)`).
 
 ---
 
-## 2. Entity-Relationship Diagram (ERD)
+## 2. Modular Drizzle Schema Structure
+
+The database schema is organized into modular TypeScript files located in `database/schema/`:
+
+```
+database/
+├── index.ts                 # Database client instantiation using @neondatabase/serverless
+└── schema/
+    ├── users.ts             # Users, authentication credentials, roles & statuses
+    ├── plans.ts             # Membership packages, pricing in PKR, duration
+    ├── subscriptions.ts     # Active/expired subscriptions, 10th-cutoff dates
+    ├── payments.ts          # Ledger invoices, payment channels (Cash, JazzCash, EasyPaisa)
+    ├── attendance.ts        # Turnstile scan logs, gate access status
+    ├── notifications.ts     # System alerts and WhatsApp reminder logs
+    ├── messages.ts          # Lead inquiries and coach consultation messages
+    ├── newsletter.ts        # Email subscribers and campaigns
+    └── index.ts             # Relations, foreign key associations & barrel exports
+```
+
+---
+
+## 3. Entity-Relationship Diagram (ERD)
 
 ```mermaid
 erDiagram
-    USERS ||--o{ MEMBERSHIPS : "subscribes to"
+    USERS ||--o{ SUBSCRIPTIONS : "subscribes to"
     USERS ||--o{ PAYMENTS : "makes"
     USERS ||--o{ ATTENDANCE : "logs check-ins"
     USERS ||--o{ NOTIFICATIONS_LOG : "receives"
-    MEMBERSHIP_PLANS ||--o{ MEMBERSHIPS : "defines"
-    MEMBERSHIPS ||--o{ PAYMENTS : "billed under"
-    PAYMENTS ||--o{ NOTIFICATIONS_LOG : "triggers"
+    MEMBERSHIP_PLANS ||--o{ SUBSCRIPTIONS : "defines"
+    SUBSCRIPTIONS ||--o{ PAYMENTS : "billed under"
 
     USERS {
-        int id PK
-        string member_code UK
-        string full_name
-        string email UK
-        string phone
-        string password
+        serial id PK
+        varchar member_code UK "e.g. 2026-4"
+        varchar full_name
+        varchar email UK
+        varchar phone
+        text password
         enum role "admin, staff, member"
-        string avatar
+        text avatar
         enum status "active, inactive, suspended"
         timestamp created_at
         timestamp updated_at
     }
 
     MEMBERSHIP_PLANS {
-        int id PK
-        string name
-        string slug UK
+        serial id PK
+        varchar name "e.g. 3-Month Pro Athlete"
+        varchar slug UK
         text description
-        decimal price
-        int duration_days
-        text features "JSON"
+        numeric price "PKR"
+        integer duration_days
+        jsonb features
         boolean is_popular
         enum status "active, inactive"
         timestamp created_at
     }
 
-    MEMBERSHIPS {
-        int id PK
-        int user_id FK
-        int plan_id FK
+    SUBSCRIPTIONS {
+        serial id PK
+        integer user_id FK
+        integer plan_id FK
         date start_date
         date end_date
         enum status "active, expired, pending, cancelled"
-        boolean auto_renew
         timestamp created_at
-        timestamp updated_at
     }
 
     PAYMENTS {
-        int id PK
-        int user_id FK
-        int membership_id FK
-        decimal amount
-        string payment_method
-        string transaction_id UK
-        enum status "paid, pending, overdue, failed"
-        date due_date
-        datetime paid_at
-        text notes
+        serial id PK
+        integer user_id FK
+        integer subscription_id FK
+        varchar invoice_number UK
+        numeric amount "PKR"
+        enum payment_method "cash, card, jazzcash, easypaisa, bank_transfer"
+        varchar transaction_ref
+        enum status "paid, pending, overdue, refunded"
+        timestamp paid_at
         timestamp created_at
     }
 
     ATTENDANCE {
-        int id PK
-        int user_id FK
+        serial id PK
+        integer user_id FK
         timestamp check_in_time
-        timestamp check_out_time
-        enum entry_type "qr_scanner, rfid_keycard, manual"
-        enum status "granted, denied"
-        string notes
-    }
-
-    NOTIFICATIONS_LOG {
-        int id PK
-        int user_id FK
-        int payment_id FK
-        enum channel "sms, whatsapp, email"
-        string recipient
-        text message
-        enum status "sent, delivered, failed, queued"
-        timestamp sent_at
-    }
-
-    CONTACT_MESSAGES {
-        int id PK
-        string full_name
-        string email
-        string phone
-        string program
-        text message
-        enum status "unread, read"
-        timestamp created_at
-        timestamp read_at
-    }
-
-    NEWSLETTER_SUBSCRIBERS {
-        int id PK
-        string email UK
-        string ip_address
-        enum status "subscribed, unsubscribed"
-        timestamp subscribed_at
-    }
-
-    EMAIL_CAMPAIGNS {
-        int id PK
-        string subject
-        string category
-        string target_audience
-        int recipient_count
-        longtext message
-        enum status "sent, draft, failed"
-        string sent_by
-        timestamp sent_at
+        varchar entry_type "qr_scanner, optical_cam, manual"
+        varchar status "granted, denied"
+        text notes
     }
 ```
 
 ---
 
-## 3. Table Data Dictionary
+## 4. Table Data Dictionary
 
-### 1. `users`
-Stores user records for administrators, gym staff, coaches, and gym members.
-
-| Column | Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Unique user identifier |
-| `member_code` | `VARCHAR(30)` | UNIQUE, NOT NULL | Alphanumeric member ID (e.g., `2026-1`) |
-| `full_name` | `VARCHAR(100)` | NOT NULL | Member or administrator full name |
-| `email` | `VARCHAR(150)` | UNIQUE, NOT NULL, INDEX | Primary email used for login |
-| `phone` | `VARCHAR(30)` | NULL | Contact phone number for SMS/WhatsApp |
-| `password` | `VARCHAR(255)` | NOT NULL | Bcrypt hashed password |
-| `role` | `ENUM` | NOT NULL, DEFAULT `'member'`, INDEX | User role: `'admin'`, `'staff'`, `'member'` |
-| `avatar` | `VARCHAR(255)` | NULL | Path to user profile photo |
-| `status` | `ENUM` | NOT NULL, DEFAULT `'active'`, INDEX | Account status: `'active'`, `'inactive'`, `'suspended'` |
-| `created_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Registration timestamp |
-| `updated_at` | `TIMESTAMP` | ON UPDATE CURRENT_TIMESTAMP | Last profile modification timestamp |
-
----
-
-### 2. `membership_plans`
-Defines available membership packages, pricing in PKR, and inclusive perks.
+### 4.1 users
+Defined in `database/schema/users.ts`. Stores system users, staff, and enrolled gym athletes.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Unique plan ID |
-| `name` | `VARCHAR(100)` | NOT NULL | Name of the plan (e.g., "3 Month Package") |
-| `slug` | `VARCHAR(100)` | UNIQUE, NOT NULL | URL-friendly identifier (e.g., "3-months") |
-| `description` | `TEXT` | NULL | Marketing overview of plan benefits |
-| `price` | `DECIMAL(10,2)`| NOT NULL | Price in Pakistani Rupees (PKR) |
-| `duration_days`| `INT` | NOT NULL, DEFAULT `30` | Subscription validity duration |
-| `features` | `TEXT` | NULL | JSON string array of included features |
-| `is_popular` | `TINYINT(1)` | DEFAULT `0` | Flag to display "Most Popular" badge |
-| `status` | `ENUM` | DEFAULT `'active'` | Availability: `'active'`, `'inactive'` |
-| `created_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Creation timestamp |
+| `id` | `serial` | `PRIMARY KEY` | Unique internal identifier |
+| `member_code` | `varchar(30)` | `NOT NULL, UNIQUE` | Sequential athlete identifier (e.g., `2026-4`) |
+| `full_name` | `varchar(100)` | `NOT NULL` | Athlete or employee full name |
+| `email` | `varchar(150)` | `NOT NULL, UNIQUE` | Unique email for authentication & alerts |
+| `phone` | `varchar(30)` | `NULLABLE` | WhatsApp/SMS phone number |
+| `password` | `text` | `NOT NULL` | Secure password hash |
+| `role` | `enum` | `DEFAULT 'member'` | Role: `admin`, `staff`, `member` |
+| `avatar` | `text` | `NULLABLE` | URL or path to athlete photo |
+| `status` | `enum` | `DEFAULT 'active'` | Status: `active`, `inactive`, `suspended` |
+| `created_at` | `timestamp` | `DEFAULT now()` | Record creation timestamp |
+| `updated_at` | `timestamp` | `DEFAULT now()` | Last update timestamp |
 
 ---
 
-### 3. `memberships`
-Links users to their active and historical subscription plans.
+### 4.2 membership_plans
+Defined in `database/schema/plans.ts`. Stores pricing tiers and inclusive perks.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Unique subscription record ID |
-| `user_id` | `INT` | FOREIGN KEY &rarr; `users(id)` ON DELETE CASCADE | Associated gym member |
-| `plan_id` | `INT` | FOREIGN KEY &rarr; `membership_plans(id)` ON DELETE CASCADE | Associated membership plan |
-| `start_date` | `DATE` | NOT NULL | Date subscription started |
-| `end_date` | `DATE` | NOT NULL | Date subscription expires |
-| `status` | `ENUM` | DEFAULT `'active'`, INDEX | State: `'active'`, `'expired'`, `'pending'`, `'cancelled'` |
-| `auto_renew` | `TINYINT(1)` | DEFAULT `1` | Automatic renewal status flag |
-| `created_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Creation timestamp |
-| `updated_at` | `TIMESTAMP` | ON UPDATE CURRENT_TIMESTAMP | Modification timestamp |
+| `id` | `serial` | `PRIMARY KEY` | Plan unique ID |
+| `name` | `varchar(100)` | `NOT NULL` | Package title (e.g. `3-Month Pro Athlete Plan`) |
+| `slug` | `varchar(100)` | `NOT NULL, UNIQUE` | URL-friendly slug (e.g. `3-months`) |
+| `description` | `text` | `NULLABLE` | Plan summary description |
+| `price` | `numeric(10, 2)`| `NOT NULL` | Price in Pakistani Rupee (e.g. `22500.00`) |
+| `duration_days` | `integer` | `NOT NULL` | Validity duration (`30`, `90`, `180` days) |
+| `features` | `jsonb` | `NULLABLE` | Array of itemized perks and amenities |
+| `is_popular` | `boolean` | `DEFAULT false` | Highlights with "Most Popular" badge |
+| `status` | `enum` | `DEFAULT 'active'` | Active or retired plan |
 
 ---
 
-### 4. `payments`
-Auditable record of membership fee collections, due dates, and transactions.
+### 4.3 subscriptions
+Defined in `database/schema/subscriptions.ts`. Manages active memberships, start dates, and 10th-cutoff deadlines.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Unique invoice ID |
-| `user_id` | `INT` | FOREIGN KEY &rarr; `users(id)` ON DELETE CASCADE | Member paying the fee |
-| `membership_id`| `INT` | FOREIGN KEY &rarr; `memberships(id)` ON DELETE SET NULL | Related membership subscription |
-| `amount` | `DECIMAL(10,2)`| NOT NULL | Billed amount in PKR |
-| `payment_method`| `VARCHAR(50)` | DEFAULT `'Card'` | Method: Cash, Card, JazzCash, EasyPaisa |
-| `transaction_id`| `VARCHAR(100)`| UNIQUE, NULL | Transaction reference code |
-| `status` | `ENUM` | DEFAULT `'paid'`, INDEX | State: `'paid'`, `'pending'`, `'overdue'`, `'failed'` |
-| `due_date` | `DATE` | NULL, INDEX | Cutoff date for fee payment |
-| `paid_at` | `DATETIME` | NULL | Timestamp of verified settlement |
-| `notes` | `TEXT` | NULL | Administrative front desk comments |
-| `created_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Invoice generation timestamp |
+| `id` | `serial` | `PRIMARY KEY` | Subscription ID |
+| `user_id` | `integer` | `REFERENCES users(id)` | Foreign key to `users` |
+| `plan_id` | `integer` | `REFERENCES membership_plans(id)` | Foreign key to `membership_plans` |
+| `start_date` | `date` | `NOT NULL` | Subscription activation date |
+| `end_date` | `date` | `NOT NULL` | Cutoff expiration date (aligned to 10th) |
+| `status` | `enum` | `DEFAULT 'active'` | `active`, `expired`, `pending`, `cancelled` |
 
 ---
 
-### 5. `attendance`
-Check-in records captured via the mobile app, web portal, or front desk.
+### 4.4 payments
+Defined in `database/schema/payments.ts`. Financial audit ledger recording multi-channel transactions.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Access log ID |
-| `user_id` | `INT` | FOREIGN KEY &rarr; `users(id)` ON DELETE CASCADE | Member entering the facility |
-| `check_in_time`| `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Entry time |
-| `check_out_time`|`TIMESTAMP` | NULL | Exit time (optional) |
-| `entry_type` | `ENUM` | DEFAULT `'qr_scanner'` | Method: `'qr_scanner'`, `'rfid_keycard'`, `'manual'` |
-| `status` | `ENUM` | DEFAULT `'granted'` | Result: `'granted'`, `'denied'` |
-| `notes` | `VARCHAR(255)`| NULL | Front desk notes |
+| `id` | `serial` | `PRIMARY KEY` | Ledger transaction ID |
+| `user_id` | `integer` | `REFERENCES users(id)` | Foreign key to `users` |
+| `subscription_id`| `integer` | `REFERENCES subscriptions(id)` | Foreign key to `subscriptions` |
+| `invoice_number` | `varchar(50)` | `NOT NULL, UNIQUE` | Format: `INV-2026-101` |
+| `amount` | `numeric(10, 2)`| `NOT NULL` | Amount paid in PKR |
+| `payment_method` | `enum` | `NOT NULL` | `cash`, `card`, `jazzcash`, `easypaisa`, `bank_transfer` |
+| `transaction_ref`| `varchar(100)`| `NULLABLE` | Gateway Trx ID or receipt number |
+| `status` | `enum` | `DEFAULT 'paid'` | `paid`, `pending`, `overdue`, `refunded` |
+| `paid_at` | `timestamp` | `NULLABLE` | Timestamp payment cleared |
 
 ---
 
-### 6. `notifications_log`
-Tracks automated payment reminders and transactional messages.
+### 4.5 attendance
+Defined in `database/schema/attendance.ts`. Live turnstile check-in event logs.
 
 | Column | Type | Constraints | Description |
 | :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Log ID |
-| `user_id` | `INT` | FOREIGN KEY &rarr; `users(id)` ON DELETE CASCADE | Targeted member |
-| `payment_id` | `INT` | FOREIGN KEY &rarr; `payments(id)` ON DELETE SET NULL | Associated payment reminder |
-| `channel` | `ENUM` | DEFAULT `'sms'` | Channel: `'sms'`, `'whatsapp'`, `'email'` |
-| `recipient` | `VARCHAR(100)`| NOT NULL | Phone number or email address |
-| `message` | `TEXT` | NOT NULL | Rendered message text |
-| `status` | `ENUM` | DEFAULT `'sent'` | State: `'sent'`, `'delivered'`, `'failed'`, `'queued'` |
-| `sent_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP, INDEX | Timestamp message was dispatched |
+| `id` | `serial` | `PRIMARY KEY` | Event log ID |
+| `user_id` | `integer` | `REFERENCES users(id)` | Foreign key to `users` |
+| `check_in_time` | `timestamp` | `DEFAULT now()` | Exact timestamp of turnstile unlatch |
+| `entry_type` | `varchar(50)` | `DEFAULT 'qr_scanner'`| `qr_scanner`, `optical_cam`, `manual` |
+| `status` | `varchar(20)` | `DEFAULT 'granted'` | `granted` or `denied` |
+| `notes` | `text` | `NULLABLE` | Operational log notes |
 
 ---
 
-### 7. `contact_messages`
-Stores customer inquiries submitted through the public contact form and mobile coach requests.
+## 5. Default Seed Data & User Credentials
 
-| Column | Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Message inquiry ID |
-| `full_name` | `VARCHAR(100)` | NOT NULL | Prospect or member name |
-| `email` | `VARCHAR(150)` | NOT NULL | Email address |
-| `phone` | `VARCHAR(50)` | NULL | Contact phone number |
-| `program` | `VARCHAR(100)` | NULL | Selected training program of interest |
-| `message` | `TEXT` | NOT NULL | Inquiry content |
-| `status` | `ENUM` | DEFAULT `'unread'`, INDEX | Inquiry state: `'unread'`, `'read'` |
-| `created_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP, INDEX | Submission timestamp |
-| `read_at` | `TIMESTAMP` | NULL | Timestamp marked as read |
+The database comes pre-seeded with active accounts for testing and evaluation:
 
----
-
-### 8. `newsletter_subscribers`
-Tracks public newsletter subscriptions.
-
-| Column | Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Subscriber ID |
-| `email` | `VARCHAR(255)` | UNIQUE, NOT NULL, INDEX | Subscriber email |
-| `ip_address` | `VARCHAR(45)` | NULL | Client IP address |
-| `status` | `ENUM` | DEFAULT `'subscribed'`, INDEX | State: `'subscribed'`, `'unsubscribed'` |
-| `subscribed_at`|`TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Subscription timestamp |
-
----
-
-### 9. `email_campaigns`
-Broadcast campaigns sent to subscribers or gym members.
-
-| Column | Type | Constraints | Description |
-| :--- | :--- | :--- | :--- |
-| `id` | `INT` | PRIMARY KEY, AUTO_INCREMENT | Campaign ID |
-| `subject` | `VARCHAR(255)` | NOT NULL | Email subject line |
-| `category` | `VARCHAR(50)` | DEFAULT `'Promotion'` | Category (e.g., 'Update', 'Promotion') |
-| `target_audience`|`VARCHAR(100)`| NOT NULL | Target segment (e.g., 'All Members') |
-| `recipient_count`|`INT` | DEFAULT `0` | Number of targeted recipients |
-| `message` | `LONGTEXT` | NOT NULL | Campaign HTML or plain text body |
-| `status` | `ENUM` | DEFAULT `'sent'` | State: `'sent'`, `'draft'`, `'failed'` |
-| `sent_by` | `VARCHAR(100)` | NULL | Sender admin username |
-| `sent_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP | Dispatch timestamp |
-
----
-
-## 4. Default Seed Data & User Credentials
-
-The database includes predefined test accounts across all roles:
-
-| Role | Member ID | Email | Password | Default Membership |
-| :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `2026-1` | `admin@gymflow.com` | `Admin123!` | Management Master |
-| **Staff / Coach** | `2026-2` | `staff@gymflow.com` | `Staff123!` | Head Trainer |
-| **Member** | `2026-3` | `member@gymflow.com` | `Member123!` | 3 Month Package |
-| **Member** | `2026-4` | `moeezahmad.tech@gmail.com` | `password123` | 1 Month Package |
-| **Member** | `2026-5` | `alex@gymflow.com` | `password123` | 3 Month Package |
-
----
-
-## 5. Status State Machines & Lifecycles
-
-### Membership Status Lifecycle
 ```
-[Pending] ──(Fee Paid)──> [Active] ──(Date > end_date)──> [Expired]
-    │                        │                               │
-    └────(Cancelled)─────────┴─────────(Renewed)─────────────┘
-```
-
-### Payment Status Lifecycle
-```
-[Pending] ──(Confirmed)──> [Paid]
-    │
-    ├──(Due Date Passed)──> [Overdue] ──(Settled)──> [Paid]
-    └──(Card Declined)────> [Failed]
+Users Table Seed Data:
+┌─────┬───────────┬──────────────────┬─────────────────────────────┬────────┬────────┐
+│ ID  │ Code      │ Name             │ Email                       │ Role   │ Status │
+├─────┼───────────┼──────────────────┼─────────────────────────────┼────────┼────────┤
+│ 1   │ 2026-1    │ Admin Director   │ admin@gymflow.com           │ admin  │ active │
+│ 2   │ 2026-2    │ Front Desk Staff │ staff@gymflow.com           │ staff  │ active │
+│ 3   │ 2026-3    │ Active Athlete   │ athlete@gymflow.com         │ member │ active │
+│ 4   │ 2026-4    │ Moeez Ahmad      │ moeezahmad.tech@gmail.com   │ member │ active │
+└─────┴───────────┴──────────────────┴─────────────────────────────┴────────┴────────┘
+Default Password for all seed accounts: athlete123 (or admin123)
 ```
 
 ---
 
-## 6. Indexing & Query Optimization
+## 6. Strict 10th-Cutoff Billing Logic & State Machine
 
-Composite and single-column indexes are placed on hot query paths:
-* `users`: `idx_email`, `idx_role`, `idx_status` &mdash; ensures instant login checks and role filtering.
-* `memberships`: `idx_user_membership (user_id, status)` &mdash; provides $O(1)$ lookups for a member's active plan.
-* `payments`: `idx_payment_status`, `idx_due_date` &mdash; accelerates cron overdue scans and financial reporting.
-* `attendance`: `idx_user_attendance (user_id, check_in_time)` &mdash; enables fast daily check-in validation and streak counts.
+GymFlow enforces a universal **10th-of-the-month cutoff billing engine**:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Active: First Payment Received
+    Active --> DueNotice: 1st - 9th of Renewal Month
+    DueNotice --> Active: Dues Paid via Cash/EasyPaisa/JazzCash
+    DueNotice --> LockedTurnstile: 11th of Month (Unpaid)
+    LockedTurnstile --> Active: Payment Recorded at Front Desk
+```
+
+1. **Cycle Cutoff:** All recurring monthly renewals are due on the 10th of the calendar month.
+2. **Grace Period Notice:** From the 1st through the 9th, members receive gentle reminder badges in their PWA app.
+3. **Turnstile Enforcement:** On the 11th, any account whose status is `pending` or `overdue` has its gate clearance automatically changed to **LOCKED / DENIED**.
+4. **Instant Reactivation:** As soon as staff records payment in `/admin/billing`, the account switches to `active`, unlatching turnstiles immediately.
+
+---
+
+## 7. Connection Strings & Configuration
+
+Configure in `.env`:
+
+```ini
+# Pooled Connection (Next.js App Router, Server Actions, Route Handlers)
+DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+# Direct Connection (Drizzle Migrations & Drizzle Studio)
+DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+```
