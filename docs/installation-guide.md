@@ -50,8 +50,8 @@ cp .env.example .env
 ```
 Ensure your `DATABASE_URL` is set:
 ```ini
-DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
-DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@ep-your-endpoint-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://user:password@ep-your-endpoint.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
 ### Step 4: Start the Development Server
@@ -77,16 +77,16 @@ APP_NAME="GymFlow"
 APP_URL="http://localhost:3000"
 
 # Neon Serverless PostgreSQL (Pooled for Server Actions & API Routes - Port 5432)
-DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@ep-your-endpoint-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Direct Neon Connection (for Drizzle Migrations)
-DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://user:password@ep-your-endpoint.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Authentication Secret (Used to sign cookies and tokens)
-AUTH_SECRET="gymflow_secure_production_secret_key_2026_xyz"
+AUTH_SECRET="your_production_secret_key_here"
 
 # Automated Cron Worker Security Secret
-CRON_SECRET="gymflow_cron_bearer_token_2026"
+CRON_SECRET="your_cron_bearer_token_here"
 
 # Club Contact Information (Displayed across public site & WhatsApp triggers)
 NEXT_PUBLIC_GYM_PHONE="+92 325 9491349"

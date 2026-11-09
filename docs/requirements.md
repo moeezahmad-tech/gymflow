@@ -81,14 +81,14 @@ APP_NAME="GymFlow"
 APP_URL="http://localhost:3000"
 
 # Neon Serverless PostgreSQL (Pooled for Port 5432)
-DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@ep-your-endpoint-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Direct Neon Connection (for Drizzle migrations)
-DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://user:password@ep-your-endpoint.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Secrets
-AUTH_SECRET="gymflow_secure_production_secret_key_2026_xyz"
-CRON_SECRET="gymflow_cron_bearer_token_2026"
+AUTH_SECRET="your_production_secret_key_here"
+CRON_SECRET="your_cron_bearer_token_here"
 ```
 
 ---

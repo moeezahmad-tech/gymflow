@@ -80,7 +80,7 @@
 ## 🛠 Technology Stack: 100% Free Serverless Architecture
 
 * **Framework & App Shell:** **Next.js 15 (App Router)** with React 19 &bull; **No separate backend server required**.
-* **Database:** **Neon Serverless PostgreSQL** with built-in connection pooling (`ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech`).
+* **Database:** **Neon Serverless PostgreSQL** with built-in connection pooling and auto-scaling compute.
 * **Database ORM:** **Drizzle ORM** (Fastest serverless cold-starts, modular schema in `database/schema/`).
 * **Hosting & CDN:** **Vercel Hobby Tier** ($0/month with unlimited serverless executions and free SSL).
 * **QR Engine:** **`qrcode`** (Level H error correction, 2x retina rendering, downloadable PNG).
@@ -117,8 +117,8 @@
    ```
    Ensure your `.env` contains:
    ```ini
-   DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
-   DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+   DATABASE_URL="postgresql://user:password@ep-your-endpoint-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+   DIRECT_URL="postgresql://user:password@ep-your-endpoint.us-east-1.aws.neon.tech/neondb?sslmode=require"
    ```
 
 4. **Start the Development Server:**

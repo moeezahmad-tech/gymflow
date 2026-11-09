@@ -257,8 +257,8 @@ Configure in `.env`:
 
 ```ini
 # Pooled Connection (Next.js App Router, Server Actions, Route Handlers)
-DATABASE_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq-pooler.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@ep-your-endpoint-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
 
 # Direct Connection (Drizzle Migrations & Drizzle Studio)
-DIRECT_URL="postgresql://neondb_owner:npg_uy2nUHwhvL9s@ep-patient-shape-bcvc57iq.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://user:password@ep-your-endpoint.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
